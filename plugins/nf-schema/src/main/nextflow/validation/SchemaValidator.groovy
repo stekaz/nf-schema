@@ -243,14 +243,15 @@ class SchemaValidator extends PluginExtensionPoint {
         // Check for nextflow core params and unexpected params
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
-        def Map schemaParams = (Map) parsed.get('defs')
+        // $defs is the adviced keyword for definitions. Keeping defs in for backwards compatibility
+        def Map schemaParams = (Map) (parsed.get('$defs') ?: parsed.get("defs"))
         def specifiedParamKeys = params.keySet()
 
         // Collect expected parameters from the schema
         def enumsTuple = collectEnums(schemaParams)
         def List expectedParams = (List) enumsTuple[0] + addExpectedParams()
         def Map enums = (Map) enumsTuple[1]
-        // Collect expected parameters from the schema when parameters are specified outside of "defs"
+        // Collect expected parameters from the schema when parameters are specified outside of "$defs"
         if (parsed.containsKey('properties')) {
             def enumsTupleTopLevel = collectEnums(['top_level': ['properties': parsed.get('properties')]])
             expectedParams += (List) enumsTupleTopLevel[0]
@@ -602,10 +603,11 @@ class SchemaValidator extends PluginExtensionPoint {
     private static LinkedHashMap paramsRead(Path json_schema) throws Exception {
         def slurper = new JsonSlurper()
         def Map schema = (Map) slurper.parse( json_schema )
-        def Map schema_defs = (Map) schema.get('defs')
+        // $defs is the adviced keyword for definitions. Keeping defs in for backwards compatibility
+        def Map schema_defs = (Map) (schema.get('$defs') ?: schema.get("defs"))
         def Map schema_properties = (Map) schema.get('properties')
         /* Tree looks like this in nf-core schema
-        * defs <- this is what the first get('defs') gets us
+        * $defs <- this is what the first get('$defs') gets us
                 group 1
                     title
                     description
@@ -623,7 +625,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         parameter 1
                             type
                             description
-        * properties <- parameters can also be ungrouped, outside of defs
+        * properties <- parameters can also be ungrouped, outside of $defs
                 parameter 1
                     type
                     description
