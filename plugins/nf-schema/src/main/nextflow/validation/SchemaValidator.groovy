@@ -436,12 +436,12 @@ class SchemaValidator extends PluginExtensionPoint {
                     chopEnums = chopEnums.substring(0, terminalLength-5)
                     chopEnums = chopEnums.substring(0, chopEnums.lastIndexOf(",")) + ", ..."
                 }
-                enumsString = " (accepted: " + chopEnums + ")"
+                enumsString = " (accepted: " + chopEnums + ") "
             }
-            def String description = paramOptions.description
-            def defaultValue = paramOptions.default != null ? " [default: " + paramOptions.default.toString() + "]" : ''
-            def String nestedParamName = parentParameter + "." + paramName
-            def String nestedString = paramOptions.properties ? " (This parameter has sub-parameters. Use '--help ${nestedParamName}' to see all sub-parameters)" : ""
+            def String description = paramOptions.description ? paramOptions.description as String + " " : ""
+            def defaultValue = paramOptions.default != null ? "[default: " + paramOptions.default.toString() + "] " : ''
+            def String nestedParamName = parentParameter ? parentParameter + "." + paramName : paramName
+            def String nestedString = paramOptions.properties ? "(This parameter has sub-parameters. Use '--help ${nestedParamName}' to see all sub-parameters) " : ""
             def descriptionDefault = description + colors.dim + enumsString + defaultValue + colors.reset + nestedString
             // Wrap long description texts
             // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
