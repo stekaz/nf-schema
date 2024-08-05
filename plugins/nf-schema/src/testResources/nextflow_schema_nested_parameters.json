@@ -9,15 +9,19 @@
             "required": ["this"],
             "properties": {
                 "this": {
+                    "description": "this is this",
                     "type": "object",
                     "properties": {
                         "is":{
+                            "description": "is this is?",
                             "type": "object",
                             "properties": {
                                 "so": {
+                                    "description": "so so so",
                                     "type": "object",
                                     "properties": {
                                         "deep": {
+                                            "description": "so deep",
                                             "type": "boolean"
                                         }
                                     }

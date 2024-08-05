@@ -389,7 +389,7 @@ class SchemaValidator extends PluginExtensionPoint {
             if (paramNames.size() > 1) {
                 paramNames.remove(0)
                 paramNames.each {
-                    paramOptions = (Map) paramOptions.properties[it] ?: [:]
+                    paramOptions = (Map) paramOptions?.properties?[it] ?: [:]
                 }
             }
             if (!paramOptions) {
@@ -471,7 +471,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         "      ." + it[4..it.length()-1]
                     }
                     .join("\n")
-                helpMessage += "    " + colors.dim + "options: " + colors.reset + "\n" + subParamsHelpString + "\n"
+                helpMessage += "    " + colors.dim + "options".padRight(11) + ": " + colors.reset + "\n" + subParamsHelpString + "\n"
                 continue
             }
             def String value = option.value
