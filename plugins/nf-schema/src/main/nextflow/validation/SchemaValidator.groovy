@@ -337,9 +337,9 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Wrap too long text
     //
-    String wrapText(String text, Integer indent) {
+    String wrapText(String text) {
         List olines = []
-        String oline = "" // " " * indent
+        String oline = ""
         text.split(" ").each() { wrd ->
             if ((oline.size() + wrd.size()) <= terminalLength) {
                 oline += wrd + " "
@@ -349,7 +349,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         olines += oline
-        return olines.join("\n" + " " * indent)
+        return olines.join("\n")
     }
 
     //
@@ -371,8 +371,6 @@ class SchemaValidator extends PluginExtensionPoint {
         output        += "  ${colors.cyan}${command}${colors.reset}\n\n"
         Map paramsMap = paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
         Integer maxChars  = paramsMaxChars(paramsMap) + 1
-        Integer descIndent = maxChars + 14
-        Integer decLineWidth = 160 - descIndent
 
         // Make sure the hidden parameters count is 0
         hiddenParametersCount = 0
@@ -380,11 +378,18 @@ class SchemaValidator extends PluginExtensionPoint {
         // If a value is passed to help
         if (params.help instanceof String) {
             def String paramName = params.help
+            def List<String> paramNames = params.help.tokenize(".") as List<String>
             def Map paramOptions = [:]
             for (group in paramsMap.keySet()) {
                 def Map group_params = paramsMap.get(group) as Map // This gets the parameters of that particular group
-                if (group_params.containsKey(paramName)) {
-                    paramOptions = group_params.get(paramName) as Map 
+                if (group_params.containsKey(paramNames[0])) {
+                    paramOptions = group_params.get(paramNames[0]) as Map 
+                }
+            }
+            if (paramNames.size() > 1) {
+                paramNames.remove(0)
+                paramNames.each {
+                    paramOptions = (Map) paramOptions.properties[it] ?: [:]
                 }
             }
             if (!paramOptions) {
@@ -399,7 +404,7 @@ class SchemaValidator extends PluginExtensionPoint {
             Integer num_params = 0
             String group_output = "$colors.underlined$colors.bold$group$colors.reset\n"
             def Map group_params = paramsMap.get(group) as Map // This gets the parameters of that particular group
-            group_output += getHelpString(group_params, colors, decLineWidth, descIndent, maxChars) + "\n"
+            group_output += getHelpList(group_params, colors, maxChars).join("\n") + "\n"
             if (group_output != "\n"){
                 output += group_output
             }
@@ -414,34 +419,36 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Get help text in string format
     //
-    private String getHelpString(Map<String,Map> params, Map colors, Integer decLineWidth, Integer descIndent, Integer maxChars) {
-        def String helpMessage = ""
+    private List<String> getHelpList(Map<String,Map> params, Map colors, Integer maxChars, String parentParameter = "") {
+        def List helpMessage = []
         for (String paramName in params.keySet()) {
             def Map paramOptions = params.get(paramName) as Map 
+            if (paramOptions.hidden && !config.showHiddenParams) {
+                hiddenParametersCount += 1
+                continue
+            }
             def String type = '[' + paramOptions.type + ']'
             def String enumsString = ""
             if (paramOptions.enum != null) {
                 def List enums = (List) paramOptions.enum
                 def String chopEnums = enums.join(", ")
-                if(chopEnums.length() > decLineWidth){
-                    chopEnums = chopEnums.substring(0, decLineWidth-5)
+                if(chopEnums.length() > terminalLength){
+                    chopEnums = chopEnums.substring(0, terminalLength-5)
                     chopEnums = chopEnums.substring(0, chopEnums.lastIndexOf(",")) + ", ..."
                 }
                 enumsString = " (accepted: " + chopEnums + ")"
             }
             def String description = paramOptions.description
             def defaultValue = paramOptions.default != null ? " [default: " + paramOptions.default.toString() + "]" : ''
-            def descriptionDefault = description + colors.dim + enumsString + defaultValue + colors.reset
+            def String nestedParamName = parentParameter + "." + paramName
+            def String nestedString = paramOptions.properties ? " (This parameter has sub-parameters. Use '--help ${nestedParamName}' to see all sub-parameters)" : ""
+            def descriptionDefault = description + colors.dim + enumsString + defaultValue + colors.reset + nestedString
             // Wrap long description texts
             // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
-            if (descriptionDefault.length() > decLineWidth){
-                descriptionDefault = wrapText(descriptionDefault, descIndent)
+            if (descriptionDefault.length() > terminalLength){
+                descriptionDefault = wrapText(descriptionDefault)
             }
-            if (paramOptions.hidden && !config.showHiddenParams) {
-                hiddenParametersCount += 1
-                continue
-            }
-            helpMessage += "  --" +  paramName.padRight(maxChars) + colors.dim + type.padRight(10) + colors.reset + descriptionDefault + '\n'
+            helpMessage.add("  --" +  paramName.padRight(maxChars) + colors.dim + type.padRight(10) + colors.reset + descriptionDefault)
         }
         return helpMessage
     }
@@ -453,21 +460,23 @@ class SchemaValidator extends PluginExtensionPoint {
         def String helpMessage = "--" + paramName + '\n'
         for (option in paramOptions) {
             def String key = option.key
-            if (key == "fa_icon") {
+            if (key == "fa_icon" || (key == "type" && option.value == "object")) {
                 continue
             }
-            def Integer lineWidth = 160 - 17
-            def Integer indent = 17
             if (key == "properties") {
                 def Map subParamsOptions = option.value as Map
-                def Integer maxChars = paramsMaxChars(subParamsOptions) + 1
-                def String subParamsHelpString = getHelpString(subParamsOptions, colors, lineWidth, indent, maxChars) + "\n"
-                helpMessage += "    " + colors.dim + "options".padRight(11) + ": " + colors.reset + "\n" + subParamsHelpString.padLeft(11)
+                def Integer maxChars = paramsMaxChars(subParamsOptions) + 2
+                def String subParamsHelpString = getHelpList(subParamsOptions, colors, maxChars, paramName)
+                    .collect {
+                        "      ." + it[4..it.length()-1]
+                    }
+                    .join("\n")
+                helpMessage += "    " + colors.dim + "options: " + colors.reset + "\n" + subParamsHelpString + "\n"
                 continue
             }
             def String value = option.value
-            if (value.length() > lineWidth) {
-                value = wrapText(value, indent)
+            if (value.length() > terminalLength) {
+                value = wrapText(value)
             }
             helpMessage += "    " + colors.dim + key.padRight(11) + ": " + colors.reset + value + '\n'
         }
