@@ -4,7 +4,7 @@
     "title": "nf-core/testpipeline pipeline parameters",
     "description": "this is a test",
     "type": "object",
-    "defs": {
+    "$defs": {
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
@@ -250,19 +250,19 @@
     },
     "allOf": [
         {
-            "$ref": "#/defs/input_output_options"
+            "$ref": "#/$defs/input_output_options"
         },
         {
-            "$ref": "#/defs/reference_genome_options"
+            "$ref": "#/$defs/reference_genome_options"
         },
         {
-            "$ref": "#/defs/institutional_config_options"
+            "$ref": "#/$defs/institutional_config_options"
         },
         {
-            "$ref": "#/defs/max_job_request_options"
+            "$ref": "#/$defs/max_job_request_options"
         },
         {
-            "$ref": "#/defs/generic_options"
+            "$ref": "#/$defs/generic_options"
         }
     ]
 }

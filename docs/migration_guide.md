@@ -65,15 +65,15 @@ e 's/from "plugin\/nf-validation"/from "plugin\/nf-schema"/g' {} +
 If you aren't using any special features in your schemas, you can simply update your `nextflow_schema.json` file using the following command:
 
 ```bash
-sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.org\/draft\/2020-12\/schema/g' -e 's/definitions/defs/g' nextflow_schema.json
+sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.org\/draft\/2020-12\/schema/g' -e 's/definitions/$defs/g' nextflow_schema.json
 ```
 
-This will replace the old schema draft specification (`draft-07`) by the new one (`2020-12`), and the old keyword `definitions` by the new notation `defs`.
+This will replace the old schema draft specification (`draft-07`) by the new one (`2020-12`), and the old keyword `definitions` by the new notation `$defs`.
 
 !!! note
 
     Repeat this command for every JSON schema used in your pipeline. e.g. for the default samplesheet schema in nf-core pipelines:
-    `bash sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.org\/draft\/2020-12\/schema/g' -e 's/definitions/defs/g' assets/schema_input.json`
+    `bash sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.org\/draft\/2020-12\/schema/g' -e 's/definitions/$defs/g' assets/schema_input.json`
 
 !!! warning
 

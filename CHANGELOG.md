@@ -1,5 +1,11 @@
 # nextflow-io/nf-schema: Changelog
 
+# Version 2.1.0
+
+## JSON schema fixes
+
+1. The `defs` keyword is now deprecated in favor of the `$defs` keyword. This to follow the JSON schema guidelines. We will continue supporting `defs` for backwards compatibility.
+
 # Version 2.0.1 - Tsukemen
 
 ## Vulnerability fix
