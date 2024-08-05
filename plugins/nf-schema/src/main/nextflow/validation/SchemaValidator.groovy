@@ -113,6 +113,12 @@ class SchemaValidator extends PluginExtensionPoint {
     private List<String> errors = []
     private List<String> warnings = []
 
+    // The amount of parameters hidden (for help messages)
+    private Integer hiddenParametersCount = 0
+
+    // The length of the terminal
+    private Integer terminalLength = System.getenv("COLUMNS")?.toInteger() ?: 100
+
     @Override
     protected void init(Session session) {
         def plugins = session?.config?.navigate("plugins") as ArrayList
@@ -331,11 +337,11 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Wrap too long text
     //
-    String wrapText(String text, Integer lineWidth, Integer indent) {
+    String wrapText(String text, Integer indent) {
         List olines = []
         String oline = "" // " " * indent
         text.split(" ").each() { wrd ->
-            if ((oline.size() + wrd.size()) <= lineWidth) {
+            if ((oline.size() + wrd.size()) <= terminalLength) {
                 oline += wrd + " "
             } else {
                 olines += oline
@@ -363,76 +369,38 @@ class SchemaValidator extends PluginExtensionPoint {
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
         output        += "  ${colors.cyan}${command}${colors.reset}\n\n"
-        Map params_map = paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
-        Integer max_chars  = paramsMaxChars(params_map) + 1
-        Integer desc_indent = max_chars + 14
-        Integer dec_linewidth = 160 - desc_indent
+        Map paramsMap = paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
+        Integer maxChars  = paramsMaxChars(paramsMap) + 1
+        Integer descIndent = maxChars + 14
+        Integer decLineWidth = 160 - descIndent
+
+        // Make sure the hidden parameters count is 0
+        hiddenParametersCount = 0
 
         // If a value is passed to help
         if (params.help instanceof String) {
-            def String param = params.help
-            def Map get_param = [:]
-            for (group in params_map.keySet()) {
-                def Map group_params = params_map.get(group) as Map // This gets the parameters of that particular group
-                if (group_params.containsKey(param)) {
-                    get_param = group_params.get(param) as Map 
+            def String paramName = params.help
+            def Map paramOptions = [:]
+            for (group in paramsMap.keySet()) {
+                def Map group_params = paramsMap.get(group) as Map // This gets the parameters of that particular group
+                if (group_params.containsKey(paramName)) {
+                    paramOptions = group_params.get(paramName) as Map 
                 }
             }
-            if (!get_param) {
-                throw new Exception("Specified param '${param}' does not exist in JSON schema.")
+            if (!paramOptions) {
+                throw new Exception("Specified param '${paramName}' does not exist in JSON schema.")
             }
-            output += "--" + param + '\n'
-            for (property in get_param) {
-                if (property.key == "fa_icon") {
-                    continue;
-                }
-                def String key = property.key
-                def String value = property.value
-                def Integer lineWidth = 160 - 17
-                def Integer indent = 17
-                if (value.length() > lineWidth) {
-                    value = wrapText(value, lineWidth, indent)
-                }
-                output += "    " + colors.dim + key.padRight(11) + ": " + colors.reset + value + '\n'
-            }
+            output += getDetailedHelpString(paramName, paramOptions, colors)
             output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
             return output
         }
 
-        for (group in params_map.keySet()) {
+        for (group in paramsMap.keySet()) {
             Integer num_params = 0
             String group_output = "$colors.underlined$colors.bold$group$colors.reset\n"
-            def Map group_params = params_map.get(group) as Map // This gets the parameters of that particular group
-            for (String param in group_params.keySet()) {
-                def Map get_param = group_params.get(param) as Map 
-                def String type = '[' + get_param.type + ']'
-                def String enums_string = ""
-                if (get_param.enum != null) {
-                    def List enums = (List) get_param.enum
-                    def String chop_enums = enums.join(", ")
-                    if(chop_enums.length() > dec_linewidth){
-                        chop_enums = chop_enums.substring(0, dec_linewidth-5)
-                        chop_enums = chop_enums.substring(0, chop_enums.lastIndexOf(",")) + ", ..."
-                    }
-                    enums_string = " (accepted: " + chop_enums + ")"
-                }
-                def String description = get_param.description
-                def defaultValue = get_param.default != null ? " [default: " + get_param.default.toString() + "]" : ''
-                def description_default = description + colors.dim + enums_string + defaultValue + colors.reset
-                // Wrap long description texts
-                // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
-                if (description_default.length() > dec_linewidth){
-                    description_default = wrapText(description_default, dec_linewidth, desc_indent)
-                }
-                if (get_param.hidden && !config.showHiddenParams) {
-                    num_hidden += 1
-                    continue;
-                }
-                group_output += "  --" +  param.padRight(max_chars) + colors.dim + type.padRight(10) + colors.reset + description_default + '\n'
-                num_params += 1
-            }
-            group_output += '\n'
-            if (num_params > 0){
+            def Map group_params = paramsMap.get(group) as Map // This gets the parameters of that particular group
+            group_output += getHelpString(group_params, colors, decLineWidth, descIndent, maxChars) + "\n"
+            if (group_output != "\n"){
                 output += group_output
             }
         }
@@ -441,6 +409,69 @@ class SchemaValidator extends PluginExtensionPoint {
         }
         output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
         return output
+    }
+
+    //
+    // Get help text in string format
+    //
+    private String getHelpString(Map<String,Map> params, Map colors, Integer decLineWidth, Integer descIndent, Integer maxChars) {
+        def String helpMessage = ""
+        for (String paramName in params.keySet()) {
+            def Map paramOptions = params.get(paramName) as Map 
+            def String type = '[' + paramOptions.type + ']'
+            def String enumsString = ""
+            if (paramOptions.enum != null) {
+                def List enums = (List) paramOptions.enum
+                def String chopEnums = enums.join(", ")
+                if(chopEnums.length() > decLineWidth){
+                    chopEnums = chopEnums.substring(0, decLineWidth-5)
+                    chopEnums = chopEnums.substring(0, chopEnums.lastIndexOf(",")) + ", ..."
+                }
+                enumsString = " (accepted: " + chopEnums + ")"
+            }
+            def String description = paramOptions.description
+            def defaultValue = paramOptions.default != null ? " [default: " + paramOptions.default.toString() + "]" : ''
+            def descriptionDefault = description + colors.dim + enumsString + defaultValue + colors.reset
+            // Wrap long description texts
+            // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
+            if (descriptionDefault.length() > decLineWidth){
+                descriptionDefault = wrapText(descriptionDefault, descIndent)
+            }
+            if (paramOptions.hidden && !config.showHiddenParams) {
+                hiddenParametersCount += 1
+                continue
+            }
+            helpMessage += "  --" +  paramName.padRight(maxChars) + colors.dim + type.padRight(10) + colors.reset + descriptionDefault + '\n'
+        }
+        return helpMessage
+    }
+
+    //
+    // Get a detailed help string from one parameter
+    //
+    private String getDetailedHelpString(String paramName, Map paramOptions, Map colors) {
+        def String helpMessage = "--" + paramName + '\n'
+        for (option in paramOptions) {
+            def String key = option.key
+            if (key == "fa_icon") {
+                continue
+            }
+            def Integer lineWidth = 160 - 17
+            def Integer indent = 17
+            if (key == "properties") {
+                def Map subParamsOptions = option.value as Map
+                def Integer maxChars = paramsMaxChars(subParamsOptions) + 1
+                def String subParamsHelpString = getHelpString(subParamsOptions, colors, lineWidth, indent, maxChars) + "\n"
+                helpMessage += "    " + colors.dim + "options".padRight(11) + ": " + colors.reset + "\n" + subParamsHelpString.padLeft(11)
+                continue
+            }
+            def String value = option.value
+            if (value.length() > lineWidth) {
+                value = wrapText(value, indent)
+            }
+            helpMessage += "    " + colors.dim + key.padRight(11) + ": " + colors.reset + value + '\n'
+        }
+        return helpMessage
     }
 
     //
@@ -477,10 +508,10 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Get pipeline parameters defined in JSON Schema
         def Map params_summary = [:]
-        def Map params_map = paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
-        for (group in params_map.keySet()) {
+        def Map paramsMap = paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
+        for (group in paramsMap.keySet()) {
             def sub_params = new LinkedHashMap()
-            def Map group_params = params_map.get(group)  as Map // This gets the parameters of that particular group
+            def Map group_params = paramsMap.get(group)  as Map // This gets the parameters of that particular group
             for (String param in group_params.keySet()) {
                 if (params.containsKey(param)) {
                     def String params_value = params.get(param)
@@ -536,14 +567,14 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def colors = Utils.logColours(config.monochromeLogs)
         String output  = ''
-        def LinkedHashMap params_map = paramsSummaryMap(workflow, parameters_schema: schemaFilename)
-        def max_chars  = paramsMaxChars(params_map)
-        for (group in params_map.keySet()) {
-            def Map group_params = params_map.get(group) as Map // This gets the parameters of that particular group
+        def LinkedHashMap paramsMap = paramsSummaryMap(workflow, parameters_schema: schemaFilename)
+        def maxChars  = paramsMaxChars(paramsMap)
+        for (group in paramsMap.keySet()) {
+            def Map group_params = paramsMap.get(group) as Map // This gets the parameters of that particular group
             if (group_params) {
                 output += "$colors.bold$group$colors.reset\n"
                 for (String param in group_params.keySet()) {
-                    output += "  " + colors.blue + param.padRight(max_chars) + ": " + colors.green +  group_params.get(param) + colors.reset + '\n'
+                    output += "  " + colors.blue + param.padRight(maxChars) + ": " + colors.green +  group_params.get(param) + colors.reset + '\n'
                 }
                 output += '\n'
             }
@@ -587,14 +618,14 @@ class SchemaValidator extends PluginExtensionPoint {
     // This function tries to read a JSON params file
     //
     private static LinkedHashMap paramsLoad(Path json_schema) {
-        def params_map = new LinkedHashMap()
+        def paramsMap = new LinkedHashMap()
         try {
-            params_map = paramsRead(json_schema)
+            paramsMap = paramsRead(json_schema)
         } catch (Exception e) {
             println "Could not read parameters settings from JSON. $e"
-            params_map = new LinkedHashMap()
+            paramsMap = new LinkedHashMap()
         }
-        return params_map
+        return paramsMap
     }
 
     //
@@ -636,7 +667,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     description
         */
 
-        def params_map = new LinkedHashMap()
+        def paramsMap = new LinkedHashMap()
         // Grouped params
         if (schema_defs) {
             for (group in schema_defs) {
@@ -646,7 +677,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 group_property.each { innerkey, value ->
                     sub_params.put(innerkey, value)
                 }
-                params_map.put(title, sub_params)
+                paramsMap.put(title, sub_params)
             }
         }
 
@@ -656,25 +687,25 @@ class SchemaValidator extends PluginExtensionPoint {
             schema_properties.each { innerkey, value ->
                 ungrouped_params.put(innerkey, value)
             }
-            params_map.put("Other parameters", ungrouped_params)
+            paramsMap.put("Other parameters", ungrouped_params)
         }
 
-        return params_map
+        return paramsMap
     }
 
     //
     // Get maximum number of characters across all parameter names
     //
-    private static Integer paramsMaxChars( Map params_map) {
-        Integer max_chars = 0
-        for (group in params_map.keySet()) {
-            def Map group_params = (Map) params_map.get(group)  // This gets the parameters of that particular group
+    private static Integer paramsMaxChars( Map paramsMap) {
+        Integer maxChars = 0
+        for (group in paramsMap.keySet()) {
+            def Map group_params = (Map) paramsMap.get(group)  // This gets the parameters of that particular group
             for (String param in group_params.keySet()) {
-                if (param.size() > max_chars) {
-                    max_chars = param.size()
+                if (param.size() > maxChars) {
+                    maxChars = param.size()
                 }
             }
         }
-        return max_chars
+        return maxChars
     }
 }
