@@ -22,6 +22,8 @@ class ValidationConfig {
     final private Boolean monochromeLogs
     final private Boolean failUnrecognisedParams
     final private Boolean showHiddenParams
+    final private String  parametersSchema
+    final private HelpConfig help
 
     final private List<String> ignoreParams
 
@@ -31,6 +33,8 @@ class ValidationConfig {
         monochromeLogs          = config.monochromeLogs         ?: false
         failUnrecognisedParams  = config.failUnrecognisedParams ?: false
         showHiddenParams        = config.showHiddenParams       ?: false
+        parametersSchema        = config.parametersSchema       ?: "nextflow_schema.json"
+        help                    = new HelpConfig(config.help as Map ?: [:])
 
         if(config.ignoreParams && !(config.ignoreParams instanceof List<String>)) {
             throw new SchemaValidationException("Config value 'validation.ignoreParams' should be a list of String values")

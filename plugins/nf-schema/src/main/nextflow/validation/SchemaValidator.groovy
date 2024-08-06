@@ -119,6 +119,9 @@ class SchemaValidator extends PluginExtensionPoint {
     // The length of the terminal
     private Integer terminalLength = System.getenv("COLUMNS")?.toInteger() ?: 100
 
+    // The configuration class
+    private ValidationConfig config
+
     @Override
     protected void init(Session session) {
         def plugins = session?.config?.navigate("plugins") as ArrayList
@@ -140,15 +143,26 @@ class SchemaValidator extends PluginExtensionPoint {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             """)
         }
+
+        // Help message logic
+        config = ValidationConfig(session.config.navigate('validation') as Map)
+        if (config.help.enabled) {
+            log.debug("Enabled checks to create a help message using --${config.help.fullParameter} and --${config.help.shortParameter}")
+            def Map params = session.params as Map
+            if (params.containsKey(config.help.fullParameter)) {
+                log.debug("Printing out the full help message")
+                System.exit(0)
+            } else if (params.containsKey(config.help.shortParameter)) {
+                log.debug("Printing out the short help message")
+                System.exit(0)
+            }
+        }
+
     }
 
     Session getSession(){
         Global.getSession() as Session
     }  
-
-    ValidationConfig getConfig() {
-        new ValidationConfig(session.config.navigate('validation') as Map)
-    }
 
     boolean hasErrors() { errors.size()>0 }
     List<String> getErrors() { errors }
@@ -238,7 +252,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir.toString()
-        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : config.parametersSchema
         log.debug "Starting parameters validation"
 
         // Clean the parameters
@@ -356,13 +370,13 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for --help
     //
     @Function
-    String paramsHelp(
+    public String paramsHelp(
         Map options = null,
         String command
     ) {
         def Map params = initialiseExpectedParams(session.params)
 
-        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : config.parametersSchema
 
         def colors = Utils.logColours(config.monochromeLogs)
         Integer num_hidden = 0
@@ -492,7 +506,7 @@ class SchemaValidator extends PluginExtensionPoint {
         WorkflowMetadata workflow
         ) {
         
-        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : config.parametersSchema
         def Map params = session.params
         
         // Get a selection of core Nextflow workflow options
@@ -585,7 +599,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def Map params = session.params
 
-        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : config.parametersSchema
 
         def colors = Utils.logColours(config.monochromeLogs)
         String output  = ''

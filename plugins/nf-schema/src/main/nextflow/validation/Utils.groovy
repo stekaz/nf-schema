@@ -123,7 +123,7 @@ public class Utils {
     }
 
     // Resolve Schema path relative to main workflow directory
-    public static String getSchemaPath(String baseDir, String schemaFilename='nextflow_schema.json') {
+    public static String getSchemaPath(String baseDir, String schemaFilename) {
         if (Path.of(schemaFilename).exists()) {
             return schemaFilename
         } else {
