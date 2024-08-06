@@ -269,4 +269,103 @@ public class Utils {
 
         return colorcodes
     }
+
+    //
+    // This function tries to read a JSON params file
+    //
+    public static Map paramsLoad(Path json_schema) {
+        def paramsMap = [:]
+        try {
+            paramsMap = paramsRead(json_schema)
+        } catch (Exception e) {
+            println "Could not read parameters settings from JSON. $e"
+        }
+        return paramsMap
+    }
+
+    //
+    // Method to actually read in JSON file using Groovy.
+    // Group (as Key), values are all parameters
+    //    - Parameter1 as Key, Description as Value
+    //    - Parameter2 as Key, Description as Value
+    //    ....
+    // Group
+    //    -
+    private static Map paramsRead(Path json_schema) throws Exception {
+        def slurper = new JsonSlurper()
+        def Map schema = (Map) slurper.parse( json_schema )
+        // $defs is the adviced keyword for definitions. Keeping defs in for backwards compatibility
+        def Map schema_defs = (Map) (schema.get('$defs') ?: schema.get("defs"))
+        def Map schema_properties = (Map) schema.get('properties')
+        /* Tree looks like this in nf-core schema
+        * $defs <- this is what the first get('$defs') gets us
+                group 1
+                    title
+                    description
+                        properties
+                        parameter 1
+                            type
+                            description
+                        parameter 2
+                            type
+                            description
+                group 2
+                    title
+                    description
+                        properties
+                        parameter 1
+                            type
+                            description
+        * properties <- parameters can also be ungrouped, outside of $defs
+                parameter 1
+                    type
+                    description
+        */
+
+        def paramsMap = [:]
+        // Grouped params
+        if (schema_defs) {
+            for (group in schema_defs) {
+                def Map group_property = (Map) group.value['properties'] // Gets the property object of the group
+                def String title = (String) group.value['title']
+                def sub_params = [:]
+                group_property.each { innerkey, value ->
+                    sub_params.put(innerkey, value)
+                }
+                paramsMap.put(title, sub_params)
+            }
+        }
+
+        // Ungrouped params
+        if (schema_properties) {
+            def ungrouped_params = [:]
+            schema_properties.each { innerkey, value ->
+                ungrouped_params.put(innerkey, value)
+            }
+            paramsMap.put("Other parameters", ungrouped_params)
+        }
+
+        return paramsMap
+    }
+
+    //
+    // Get maximum number of characters across all parameter names
+    //
+    public static Integer paramsMaxChars( Map paramsMap, Boolean noGroups = false) {
+        Integer maxChars = 0
+        for (group in paramsMap.keySet()) {
+            if(noGroups) {
+                if (group.size() > maxChars) {
+                    maxChars = group.size()
+                }
+            }
+            def Map group_params = (Map) paramsMap.get(group)  // This gets the parameters of that particular group
+            for (String param in group_params.keySet()) {
+                if (param.size() > maxChars) {
+                    maxChars = param.size()
+                }
+            }
+        }
+        return maxChars
+    }
 }
