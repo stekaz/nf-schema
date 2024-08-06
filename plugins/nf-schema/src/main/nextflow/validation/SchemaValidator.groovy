@@ -496,69 +496,82 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map params = session.params
         
         // Get a selection of core Nextflow workflow options
-        def Map workflow_summary = [:]
+        def Map workflowSummary = [:]
         if (workflow.revision) {
-            workflow_summary['revision'] = workflow.revision
+            workflowSummary['revision'] = workflow.revision
         }
-        workflow_summary['runName']      = workflow.runName
+        workflowSummary['runName']      = workflow.runName
         if (workflow.containerEngine) {
-            workflow_summary['containerEngine'] = workflow.containerEngine
+            workflowSummary['containerEngine'] = workflow.containerEngine
         }
         if (workflow.container) {
-            workflow_summary['container'] = workflow.container
+            workflowSummary['container'] = workflow.container
         }
         def String configFiles = workflow.configFiles
-        workflow_summary['launchDir']    = workflow.launchDir
-        workflow_summary['workDir']      = workflow.workDir
-        workflow_summary['projectDir']   = workflow.projectDir
-        workflow_summary['userName']     = workflow.userName
-        workflow_summary['profile']      = workflow.profile
-        workflow_summary['configFiles']  = configFiles.join(', ')
+        workflowSummary['launchDir']    = workflow.launchDir
+        workflowSummary['workDir']      = workflow.workDir
+        workflowSummary['projectDir']   = workflow.projectDir
+        workflowSummary['userName']     = workflow.userName
+        workflowSummary['profile']      = workflow.profile
+        workflowSummary['configFiles']  = configFiles.join(', ')
 
         // Get pipeline parameters defined in JSON Schema
-        def Map params_summary = [:]
+        def Map paramsSummary = [:]
         def Map paramsMap = paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
         for (group in paramsMap.keySet()) {
-            def sub_params = new LinkedHashMap()
-            def Map group_params = paramsMap.get(group)  as Map // This gets the parameters of that particular group
-            for (String param in group_params.keySet()) {
-                if (params.containsKey(param)) {
-                    def String params_value = params.get(param)
-                    def Map group_params_value = group_params.get(param) as Map 
-                    def String schema_value = group_params_value.default
-                    def String param_type   = group_params_value.type
-                    if (schema_value != null) {
-                        if (param_type == 'string') {
-                            if (schema_value.contains('$projectDir') || schema_value.contains('${projectDir}')) {
-                                def sub_string = schema_value.replace('\$projectDir', '')
-                                sub_string     = sub_string.replace('\${projectDir}', '')
-                                if (params_value.contains(sub_string)) {
-                                    schema_value = params_value
-                                }
+            def Map groupSummary = getSummaryMapFromParams(params, paramsMap.get(group) as Map)
+            paramsSummary.put(group, groupSummary)
+        }
+        return [ 'Core Nextflow options' : workflowSummary ] << paramsSummary as LinkedHashMap
+    }
+
+
+    //
+    // Create a summary map for the given parameters
+    //
+    private Map getSummaryMapFromParams(Map params, Map paramsSchema) {
+        def Map summary = [:]
+        for (String param in paramsSchema.keySet()) {
+            if (params.containsKey(param)) {
+                def Map schema = paramsSchema.get(param) as Map 
+                if (params.get(param) instanceof Map && schema.containsKey("properties")) {
+                    summary.put(param, getSummaryMapFromParams(params.get(param) as Map, schema.get("properties") as Map))
+                    continue
+                }
+                def String value = params.get(param)
+                def String defaultValue = schema.get("default")
+                def String type = schema.type
+                if (defaultValue != null) {
+                    if (type == 'string') {
+                        // TODO rework this in a more flexible way
+                        if (defaultValue.contains('$projectDir') || defaultValue.contains('${projectDir}')) {
+                            def sub_string = defaultValue.replace('\$projectDir', '')
+                            sub_string     = sub_string.replace('\${projectDir}', '')
+                            if (value.contains(sub_string)) {
+                                defaultValue = value
                             }
-                            if (schema_value.contains('$params.outdir') || schema_value.contains('${params.outdir}')) {
-                                def sub_string = schema_value.replace('\$params.outdir', '')
-                                sub_string     = sub_string.replace('\${params.outdir}', '')
-                                if ("${params.outdir}${sub_string}" == params_value) {
-                                    schema_value = params_value
-                                }
+                        }
+                        if (defaultValue.contains('$params.outdir') || defaultValue.contains('${params.outdir}')) {
+                            def sub_string = defaultValue.replace('\$params.outdir', '')
+                            sub_string     = sub_string.replace('\${params.outdir}', '')
+                            if ("${params.outdir}${sub_string}" == value) {
+                                defaultValue = value
                             }
                         }
                     }
+                }
 
-                    // We have a default in the schema, and this isn't it
-                    if (schema_value != null && params_value != schema_value) {
-                        sub_params.put(param, params_value)
-                    }
-                    // No default in the schema, and this isn't empty or false
-                    else if (schema_value == null && params_value != "" && params_value != null && params_value != false && params_value != 'false') {
-                        sub_params.put(param, params_value)
-                    }
+                // We have a default in the schema, and this isn't it
+                if (defaultValue != null && value != defaultValue) {
+                    summary.put(param, value)
+                }
+                // No default in the schema, and this isn't empty or false
+                else if (defaultValue == null && value != "" && value != null && value != false && value != 'false') {
+                    summary.put(param, value)
                 }
             }
-            params_summary.put(group, sub_params)
         }
-        return [ 'Core Nextflow options' : workflow_summary ] << params_summary as LinkedHashMap
+        return summary
     }
 
     //
@@ -576,7 +589,10 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def colors = Utils.logColours(config.monochromeLogs)
         String output  = ''
-        def LinkedHashMap paramsMap = paramsSummaryMap(workflow, parameters_schema: schemaFilename)
+        def Map paramsMap = paramsSummaryMap(workflow, parameters_schema: schemaFilename)
+        paramsMap.each { key, value ->
+            paramsMap[key] = flattenNestedParamsMap(value as Map)
+        }
         def maxChars  = paramsMaxChars(paramsMap)
         for (group in paramsMap.keySet()) {
             def Map group_params = paramsMap.get(group) as Map // This gets the parameters of that particular group
@@ -591,6 +607,22 @@ class SchemaValidator extends PluginExtensionPoint {
         output += "!! Only displaying parameters that differ from the pipeline defaults !!\n"
         output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
         return output
+    }
+
+    private Map flattenNestedParamsMap(Map paramsMap) {
+        def Map returnMap = [:]
+        paramsMap.each { param, value ->
+            def String key = param as String
+            if (value instanceof Map) {
+                def Map flatMap = flattenNestedParamsMap(value as Map)
+                flatMap.each { flatParam, flatValue ->
+                    returnMap.put(key + "." + flatParam, flatValue)
+                }
+            } else {
+                returnMap.put(key, value)
+            }
+        }
+        return returnMap
     }
 
     //

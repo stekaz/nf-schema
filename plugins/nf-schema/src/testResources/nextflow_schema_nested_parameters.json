@@ -4,8 +4,9 @@
     "title": "nf-core/testpipeline pipeline parameters",
     "description": "this is a test",
     "type": "object",
-    "defs": {
+    "$defs": {
         "nested_parameters": {
+            "title": "Nested Parameters",
             "required": ["this"],
             "properties": {
                 "this": {
@@ -22,7 +23,8 @@
                                     "properties": {
                                         "deep": {
                                             "description": "so deep",
-                                            "type": "boolean"
+                                            "type": "boolean",
+                                            "default": true
                                         }
                                     }
                                 }
@@ -35,7 +37,7 @@
     },
     "allOf": [
         {
-            "$ref": "#/defs/nested_parameters"
+            "$ref": "#/$defs/nested_parameters"
         }
     ]
 }
