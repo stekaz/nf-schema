@@ -60,6 +60,17 @@ class HelpMessage {
         log.info(getGroupHelpString(true))
     }
 
+    public printBeforeText() {
+        log.info(config.help.beforeText)
+    }
+
+    public printAfterText() {
+        if (hiddenParametersCount > 0) {
+            log.info(" ${colors.dim}!! Hiding ${hiddenParametersCount} params, use the `validation.showHiddenParams` config value to show them !!${colors.reset}")
+        }
+        log.info(config.help.afterText)
+    }
+
     //
     // Get a detailed help string from one parameter
     //

@@ -20,11 +20,15 @@ class HelpConfig {
     final private Boolean enabled
     final private String  shortParameter
     final private String  fullParameter
+    final private String  beforeText
+    final private String  afterText
 
     HelpConfig(Map map) {
         def config = map ?: Collections.emptyMap()
         enabled         = config.enabled        ?: false
         shortParameter  = config.shortParameter ?: "help"
         fullParameter   = config.fullParameter  ?: "help_full"
+        beforeText      = config.beforeText     ?: ""
+        afterText       = config.afterText      ?: ""
     }
 }
