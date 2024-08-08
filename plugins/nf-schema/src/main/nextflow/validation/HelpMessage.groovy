@@ -51,33 +51,13 @@ class HelpMessage {
             }
             helpMessage = getDetailedHelpString(param, paramOptions)
         } else {
-            def Integer maxChars = Utils.paramsMaxChars(paramsMap) + 1
-            if (paramsMap.containsKey(null)) {
-                def Map ungroupedParams = paramsMap[null]
-                paramsMap.remove(null)
-                helpMessage += getHelpList(ungroupedParams, maxChars + 2).collect {
-                    it[2..it.length()-1]
-                }.join("\n") + "\n\n"
-            }
-            paramsMap.each { String group, Map groupParams ->
-                def List<String> helpList = getHelpList(groupParams, maxChars)
-                if (helpList.size() > 0) {
-                    helpMessage += "${colors.underlined}${colors.bold}${group}${colors.reset}\n" as String
-                    helpMessage += helpList.join("\n") + "\n\n"
-                }
-            }
+            helpMessage = getGroupHelpString()
         }
         log.info(helpMessage)
     }
 
     public printFullHelpMessage() {
-        log.info("Full help message")
-    }
-
-    private Map<String, Map> getHelpMap() {
-        helpMap = [:]
-        
-        return helpMap
+        log.info(getGroupHelpString(true))
     }
 
     //
@@ -97,7 +77,7 @@ class HelpMessage {
                     subParamsOptions.put("${paramName}.${subParam}" as String, value)
                 }
                 def Integer maxChars = Utils.longestStringLength(subParamsOptions.keySet() as List<String>) + 1
-                def String subParamsHelpString = getHelpList(subParamsOptions, maxChars, paramName)
+                def String subParamsHelpString = getHelpListParams(subParamsOptions, maxChars, paramName)
                     .collect {
                         "      --" + it[4..it.length()-1]
                     }
@@ -115,9 +95,33 @@ class HelpMessage {
     }
 
     //
-    // Get help text in string format
+    // Get the full help message for a grouped params structure in list format
     //
-    private List<String> getHelpList(Map<String,Map> params, Integer maxChars, String parentParameter = "") {
+    private String getGroupHelpString(Boolean showNested = false) {
+        def String helpMessage = ""
+        def Map<String,Map> parsedParams = showNested ? paramsMap.collectEntries { key, Map value -> [key, flattenNestedSchemaMap(value)] } : paramsMap
+        def Integer maxChars = Utils.paramsMaxChars(parsedParams) + 1
+        if (parsedParams.containsKey(null)) {
+            def Map ungroupedParams = parsedParams[null]
+            parsedParams.remove(null)
+            helpMessage += getHelpListParams(ungroupedParams, maxChars + 2).collect {
+                it[2..it.length()-1]
+            }.join("\n") + "\n\n"
+        }
+        parsedParams.each { String group, Map groupParams ->
+            def List<String> helpList = getHelpListParams(groupParams, maxChars)
+            if (helpList.size() > 0) {
+                helpMessage += "${colors.underlined}${colors.bold}${group}${colors.reset}\n" as String
+                helpMessage += helpList.join("\n") + "\n\n"
+            }
+        }
+        return helpMessage
+    }
+
+    //
+    // Get help for params in list format
+    //
+    private List<String> getHelpListParams(Map<String,Map> params, Integer maxChars, String parentParameter = "") {
         def List helpMessage = []
         for (String paramName in params.keySet()) {
             def Map paramOptions = params.get(paramName) as Map 
