@@ -20,24 +20,22 @@ class HelpMessage {
     private final Map colors
     private Integer hiddenParametersCount = 0
     private Map<String,Map> paramsMap
-    private Integer maxChars
 
     // The length of the terminal
     private Integer terminalLength = System.getenv("COLUMNS")?.toInteger() ?: 100
 
-    HelpMessage(ValidationConfig config, Session session) {
-        config = config
+    HelpMessage(ValidationConfig inputConfig, Session session) {
+        config = inputConfig
         colors = Utils.logColours(config.monochromeLogs)
         paramsMap = Utils.paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), config.parametersSchema)) )
-        maxChars = Utils.paramsMaxChars(paramsMap) + 1
     }
 
-    public printShortHelpMessage(String param) {
+    public void printShortHelpMessage(String param) {
+        def String helpMessage = ""
         if (param) {
             def List<String> paramNames = param.tokenize(".") as List<String>
             def Map paramOptions = [:]
-            for (group in paramsMap.keySet()) {
-                def Map groupParams = paramsMap.get(group) as Map // This gets the parameters of that particular group
+            paramsMap.each { String group, Map groupParams ->
                 if (groupParams.containsKey(paramNames[0])) {
                     paramOptions = groupParams.get(paramNames[0]) as Map 
                 }
@@ -51,9 +49,25 @@ class HelpMessage {
             if (!paramOptions) {
                 throw new Exception("Specified param '${paramName}' does not exist in JSON schema.")
             }
-            log.info(getDetailedHelpString(param, paramOptions, colors))
+            helpMessage = getDetailedHelpString(param, paramOptions)
+        } else {
+            def Integer maxChars = Utils.paramsMaxChars(paramsMap) + 1
+            if (paramsMap.containsKey(null)) {
+                def Map ungroupedParams = paramsMap[null]
+                paramsMap.remove(null)
+                helpMessage += getHelpList(ungroupedParams, maxChars + 2).collect {
+                    it[2..it.length()-1]
+                }.join("\n") + "\n\n"
+            }
+            paramsMap.each { String group, Map groupParams ->
+                def List<String> helpList = getHelpList(groupParams, maxChars)
+                if (helpList.size() > 0) {
+                    helpMessage += "${colors.underlined}${colors.bold}${group}${colors.reset}\n" as String
+                    helpMessage += helpList.join("\n") + "\n\n"
+                }
+            }
         }
-        log.info("Short help message")
+        log.info(helpMessage)
     }
 
     public printFullHelpMessage() {
@@ -69,8 +83,9 @@ class HelpMessage {
     //
     // Get a detailed help string from one parameter
     //
-    private String getDetailedHelpString(String paramName, Map paramOptions, Map colors) {
-        def String helpMessage = "--" + paramName + '\n'
+    private String getDetailedHelpString(String paramName, Map paramOptions) {
+        def String helpMessage = "${colors.underlined}${colors.bold}--${paramName}${colors.reset}\n"
+        def Integer optionMaxChars = Utils.longestStringLength(paramOptions.keySet().collect { it == "properties" ? "options" : it } as List<String>)
         for (option in paramOptions) {
             def String key = option.key
             if (key == "fa_icon" || (key == "type" && option.value == "object")) {
@@ -81,20 +96,20 @@ class HelpMessage {
                 flattenNestedSchemaMap(option.value as Map).each { String subParam, Map value ->
                     subParamsOptions.put("${paramName}.${subParam}" as String, value)
                 }
-                def Integer maxChars = Utils.paramsMaxChars(subParamsOptions, true) + 1
-                def String subParamsHelpString = getHelpList(subParamsOptions, colors, maxChars, paramName)
+                def Integer maxChars = Utils.longestStringLength(subParamsOptions.keySet() as List<String>) + 1
+                def String subParamsHelpString = getHelpList(subParamsOptions, maxChars, paramName)
                     .collect {
                         "      --" + it[4..it.length()-1]
                     }
                     .join("\n")
-                helpMessage += "    " + colors.dim + "options".padRight(11) + ": " + colors.reset + "\n" + subParamsHelpString + "\n"
+                helpMessage += "    " + colors.dim + "options".padRight(optionMaxChars) + ": " + colors.reset + "\n" + subParamsHelpString + "\n"
                 continue
             }
             def String value = option.value
             if (value.length() > terminalLength) {
                 value = wrapText(value)
             }
-            helpMessage += "    " + colors.dim + key.padRight(11) + ": " + colors.reset + value + '\n'
+            helpMessage += "    " + colors.dim + key.padRight(optionMaxChars) + ": " + colors.reset + value + '\n'
         }
         return helpMessage
     }
@@ -102,7 +117,7 @@ class HelpMessage {
     //
     // Get help text in string format
     //
-    private List<String> getHelpList(Map<String,Map> params, Map colors, Integer maxChars, String parentParameter = "") {
+    private List<String> getHelpList(Map<String,Map> params, Integer maxChars, String parentParameter = "") {
         def List helpMessage = []
         for (String paramName in params.keySet()) {
             def Map paramOptions = params.get(paramName) as Map 

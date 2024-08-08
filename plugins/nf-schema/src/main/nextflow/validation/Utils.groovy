@@ -351,21 +351,17 @@ public class Utils {
     //
     // Get maximum number of characters across all parameter names
     //
-    public static Integer paramsMaxChars( Map paramsMap, Boolean noGroups = false) {
-        Integer maxChars = 0
-        for (group in paramsMap.keySet()) {
-            if(noGroups) {
-                if (group.size() > maxChars) {
-                    maxChars = group.size()
-                }
-            }
-            def Map group_params = (Map) paramsMap.get(group)  // This gets the parameters of that particular group
-            for (String param in group_params.keySet()) {
-                if (param.size() > maxChars) {
-                    maxChars = param.size()
-                }
-            }
-        }
-        return maxChars
+    public static Integer paramsMaxChars( Map paramsMap ) {
+        return Collections.max(paramsMap.collect { _, val -> 
+            def Map groupParams = val as Map
+            longestStringLength(groupParams.keySet() as List<String> )
+        })
+    }
+
+    //
+    // Get the size of the longest string value in a list of strings
+    //
+    public static Integer longestStringLength( List<String> strings ) {
+        return Collections.max(strings.collect { it.size() })
     }
 }
