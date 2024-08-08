@@ -62,6 +62,10 @@ class HelpMessage {
 
     public printBeforeText() {
         log.info(config.help.beforeText)
+        if (config.help.command) {
+            log.info("Typical pipeline command:\n")
+            log.info("  ${colors.cyan}${config.help.command}${colors.reset}\n")
+        }
     }
 
     public printAfterText() {

@@ -22,6 +22,7 @@ class HelpConfig {
     final private String  fullParameter
     final private String  beforeText
     final private String  afterText
+    final private String  command
 
     HelpConfig(Map map) {
         def config = map ?: Collections.emptyMap()
@@ -30,5 +31,6 @@ class HelpConfig {
         fullParameter   = config.fullParameter  ?: "help_full"
         beforeText      = config.beforeText     ?: ""
         afterText       = config.afterText      ?: ""
+        command         = config.command        ?: ""
     }
 }
