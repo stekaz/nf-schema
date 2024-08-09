@@ -23,14 +23,16 @@ class HelpConfig {
     final private String  beforeText
     final private String  afterText
     final private String  command
+    final private Boolean showHiddenParams
 
-    HelpConfig(Map map) {
+    HelpConfig(Map map, Boolean showHidden) {
         def config = map ?: Collections.emptyMap()
-        enabled         = config.enabled        ?: false
-        shortParameter  = config.shortParameter ?: "help"
-        fullParameter   = config.fullParameter  ?: "help_full"
-        beforeText      = config.beforeText     ?: ""
-        afterText       = config.afterText      ?: ""
-        command         = config.command        ?: ""
+        enabled             = config.enabled            ?: false
+        shortParameter      = config.shortParameter     ?: "help"
+        fullParameter       = config.fullParameter      ?: "help_full"
+        beforeText          = config.beforeText         ?: ""
+        afterText           = config.afterText          ?: ""
+        command             = config.command            ?: ""
+        showHiddenParams    = config.showHiddenParams   ?: showHidden   ?: false
     }
 }

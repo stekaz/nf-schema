@@ -114,7 +114,8 @@ class HelpMessage {
     //
     private String getGroupHelpString(Boolean showNested = false) {
         def String helpMessage = ""
-        def Map<String,Map> parsedParams = showNested ? paramsMap.collectEntries { key, Map value -> [key, flattenNestedSchemaMap(value)] } : paramsMap
+        def Map<String,Map> visibleParamsMap = !config.help.showHiddenParams ? paramsMap.collectEntries { key, Map value -> [key, removeHidden(value)]} : paramsMap
+        def Map<String,Map> parsedParams = showNested ? visibleParamsMap.collectEntries { key, Map value -> [key, flattenNestedSchemaMap(value)] } : visibleParamsMap
         def Integer maxChars = Utils.paramsMaxChars(parsedParams) + 1
         if (parsedParams.containsKey(null)) {
             def Map ungroupedParams = parsedParams[null]
@@ -131,6 +132,21 @@ class HelpMessage {
             }
         }
         return helpMessage
+    }
+
+    private Map<String,Map> removeHidden(Map<String,Map> map) {
+        def Map<String,Map> returnMap = [:]
+        map.each { String key, Map value ->
+            if(value.containsKey("properties")) {
+                value.properties = removeHidden(value.properties)
+                returnMap[key] = value
+            } else if (!value.hidden) {
+                returnMap[key] = value
+            } else {
+                hiddenParametersCount++
+            }
+        }
+        return returnMap
     }
 
     //

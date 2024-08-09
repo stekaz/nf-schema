@@ -362,6 +362,6 @@ public class Utils {
     // Get the size of the longest string value in a list of strings
     //
     public static Integer longestStringLength( List<String> strings ) {
-        return Collections.max(strings.collect { it.size() })
+        return strings ? Collections.max(strings.collect { it.size() }) : 0
     }
 }
