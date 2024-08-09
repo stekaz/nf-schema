@@ -49,6 +49,9 @@ class HelpMessage {
             if (!paramOptions) {
                 throw new Exception("Specified param '${paramName}' does not exist in JSON schema.")
             }
+            if(paramOptions.containsKey("properties")) {
+                paramOptions.properties = removeHidden(paramOptions.properties)
+            }
             helpMessage = getDetailedHelpString(param, paramOptions)
         } else {
             helpMessage = getGroupHelpString()
@@ -70,7 +73,7 @@ class HelpMessage {
 
     public printAfterText() {
         if (hiddenParametersCount > 0) {
-            log.info(" ${colors.dim}!! Hiding ${hiddenParametersCount} params, use the `validation.showHiddenParams` config value to show them !!${colors.reset}")
+            log.info(" ${colors.dim}!! Hiding ${hiddenParametersCount} param(s), use the `validation.showHiddenParams` config value to show them !!${colors.reset}")
         }
         log.info(config.help.afterText)
     }
@@ -114,7 +117,7 @@ class HelpMessage {
     //
     private String getGroupHelpString(Boolean showNested = false) {
         def String helpMessage = ""
-        def Map<String,Map> visibleParamsMap = !config.help.showHiddenParams ? paramsMap.collectEntries { key, Map value -> [key, removeHidden(value)]} : paramsMap
+        def Map<String,Map> visibleParamsMap = paramsMap.collectEntries { key, Map value -> [key, removeHidden(value)]}
         def Map<String,Map> parsedParams = showNested ? visibleParamsMap.collectEntries { key, Map value -> [key, flattenNestedSchemaMap(value)] } : visibleParamsMap
         def Integer maxChars = Utils.paramsMaxChars(parsedParams) + 1
         if (parsedParams.containsKey(null)) {
@@ -135,12 +138,15 @@ class HelpMessage {
     }
 
     private Map<String,Map> removeHidden(Map<String,Map> map) {
+        if (config.help.showHiddenParams) {
+            return map
+        }
         def Map<String,Map> returnMap = [:]
         map.each { String key, Map value ->
-            if(value.containsKey("properties")) {
-                value.properties = removeHidden(value.properties)
+            if(!value.hidden) {
                 returnMap[key] = value
-            } else if (!value.hidden) {
+            } else if(value.containsKey("properties")) {
+                value.properties = removeHidden(value.properties)
                 returnMap[key] = value
             } else {
                 hiddenParametersCount++
