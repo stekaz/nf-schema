@@ -73,7 +73,7 @@ class HelpMessage {
 
     public printAfterText() {
         if (hiddenParametersCount > 0) {
-            log.info(" ${colors.dim}!! Hiding ${hiddenParametersCount} param(s), use the `validation.showHiddenParams` config value to show them !!${colors.reset}")
+            log.info(" ${colors.dim}!! Hiding ${hiddenParametersCount} param(s), use the `--${config.help.showHiddenParameter}` parameter to show them !!${colors.reset}")
         }
         log.info(config.help.afterText)
     }
@@ -138,7 +138,7 @@ class HelpMessage {
     }
 
     private Map<String,Map> removeHidden(Map<String,Map> map) {
-        if (config.help.showHiddenParams) {
+        if (config.help.showHidden) {
             return map
         }
         def Map<String,Map> returnMap = [:]
@@ -162,10 +162,6 @@ class HelpMessage {
         def List helpMessage = []
         for (String paramName in params.keySet()) {
             def Map paramOptions = params.get(paramName) as Map 
-            if (paramOptions.hidden && !config.showHiddenParams) {
-                hiddenParametersCount += 1
-                continue
-            }
             def String type = '[' + paramOptions.type + ']'
             def String enumsString = ""
             if (paramOptions.enum != null) {

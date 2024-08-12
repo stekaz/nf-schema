@@ -145,8 +145,8 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         // Help message logic
-        config = new ValidationConfig(session.config.navigate('validation') as Map)
         def Map params = session.params as Map
+        config = new ValidationConfig(session.config.navigate('validation') as Map, params)
         def Boolean containsFullParameter = params.containsKey(config.help.fullParameter)
         def Boolean containsShortParameter = params.containsKey(config.help.shortParameter)
         if (config.help.enabled && (containsFullParameter || containsShortParameter)) {

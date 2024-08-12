@@ -27,17 +27,16 @@ class ValidationConfig {
 
     final private List<String> ignoreParams
 
-    ValidationConfig(Map map){
+    ValidationConfig(Map map, Map params){
         def config = map ?: Collections.emptyMap()
         lenientMode             = config.lenientMode            ?: false
         monochromeLogs          = config.monochromeLogs         ?: false
         failUnrecognisedParams  = config.failUnrecognisedParams ?: false
         if(config.showHiddenParams) {
-            log.warn("configuration option `validation.showHiddenParams` is deprecated, please use `validation.help.showHiddenParams` instead")
-            showHiddenParams = config.showHiddenParams
+            log.warn("configuration option `validation.showHiddenParams` is deprecated, please use `validation.help.showHidden` or the `--showHidden` parameter instead")
         }
         parametersSchema        = config.parametersSchema       ?: "nextflow_schema.json"
-        help                    = new HelpConfig(config.help as Map ?: [:], showHiddenParams)
+        help                    = new HelpConfig(config.help as Map ?: [:], params)
 
         if(config.ignoreParams && !(config.ignoreParams instanceof List<String>)) {
             throw new SchemaValidationException("Config value 'validation.ignoreParams' should be a list of String values")
