@@ -67,17 +67,17 @@ class HelpMessage {
     public String getBeforeText() {
         def String beforeText = config.help.beforeText
         if (config.help.command) {
-            beforeText += "Typical pipeline command:\n"
-            beforeText += "  ${colors.cyan}${config.help.command}${colors.reset}\n"
+            beforeText += "Typical pipeline command:\n\n"
+            beforeText += "  ${colors.cyan}${config.help.command}${colors.reset}\n\n"
         }
     }
 
     public String getAfterText() {
         def String afterText = ""
         if (hiddenParametersCount > 0) {
-            afterText += " ${colors.dim}!! Hiding ${hiddenParametersCount} param(s), use the `--${config.help.showHiddenParameter}` parameter to show them !!${colors.reset}"
+            afterText += " ${colors.dim}!! Hiding ${hiddenParametersCount} param(s), use the `--${config.help.showHiddenParameter}` parameter to show them !!${colors.reset}\n"
         }
-        afterText += "-${colors.dim}----------------------------------------------------${colors.reset}-"
+        afterText += "-${colors.dim}----------------------------------------------------${colors.reset}-\n"
         afterText += config.help.afterText
     }
 
