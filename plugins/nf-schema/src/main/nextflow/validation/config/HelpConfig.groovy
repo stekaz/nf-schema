@@ -17,14 +17,14 @@ import groovy.transform.PackageScope
 @Slf4j
 @PackageScope
 class HelpConfig {
-    final private Boolean enabled
-    final private String  shortParameter
-    final private String  fullParameter
-    final private String  showHiddenParameter
-    final private String  beforeText
-    final private String  afterText
-    final private String  command
-    final private Boolean showHidden
+    final public Boolean enabled
+    final public String  shortParameter
+    final public String  fullParameter
+    final public String  showHiddenParameter
+    final public String  beforeText
+    final public String  afterText
+    final public String  command
+    final public Boolean showHidden
 
     HelpConfig(Map map, Map params) {
         def config = map ?: Collections.emptyMap()

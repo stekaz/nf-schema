@@ -18,14 +18,14 @@ import groovy.transform.PackageScope
 @PackageScope
 class ValidationConfig {
 
-    final private Boolean lenientMode
-    final private Boolean monochromeLogs
-    final private Boolean failUnrecognisedParams
-    final private String  parametersSchema
-    final private Boolean showHiddenParams = false
-    final private HelpConfig help
+    final public Boolean lenientMode
+    final public Boolean monochromeLogs
+    final public Boolean failUnrecognisedParams
+    final public String  parametersSchema
+    final public Boolean showHiddenParams = false
+    final public HelpConfig help
 
-    final private List<String> ignoreParams
+    final public List<String> ignoreParams
 
     ValidationConfig(Map map, Map params){
         def config = map ?: Collections.emptyMap()
