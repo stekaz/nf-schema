@@ -146,7 +146,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Help message logic
         def Map params = session.params as Map
-        config = new ValidationConfig(session.config.navigate('validation') as Map, params)
+        config = new ValidationConfig(session?.config?.navigate('validation') as Map, params)
         def Boolean containsFullParameter = params.containsKey(config.help.fullParameter)
         def Boolean containsShortParameter = params.containsKey(config.help.shortParameter)
         if (config.help.enabled && (containsFullParameter || containsShortParameter)) {
@@ -443,7 +443,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Get help text in string format
     //
     private List<String> getHelpList(Map<String,Map> params, Map colors, Integer maxChars, String parentParameter = "") {
-        def List helpMessage = []
+        def List<String> helpMessage = []
         for (String paramName in params.keySet()) {
             def Map paramOptions = params.get(paramName) as Map 
             if (paramOptions.hidden && !config.showHiddenParams) {
@@ -545,7 +545,8 @@ class SchemaValidator extends PluginExtensionPoint {
             def Map groupSummary = getSummaryMapFromParams(params, paramsMap.get(group) as Map)
             paramsSummary.put(group, groupSummary)
         }
-        return [ 'Core Nextflow options' : workflowSummary ] << paramsSummary as LinkedHashMap
+        paramsSummary.put('Core Nextflow options', workflowSummary)
+        return paramsSummary
     }
 
 
