@@ -122,6 +122,9 @@ class SchemaValidator extends PluginExtensionPoint {
     // The configuration class
     private ValidationConfig config
 
+    // The session
+    private Session session
+
     @Override
     protected void init(Session session) {
         def plugins = session?.config?.navigate("plugins") as ArrayList
@@ -144,11 +147,13 @@ class SchemaValidator extends PluginExtensionPoint {
             """)
         }
 
+        this.session = session
+
         // Help message logic
         def Map params = session.params as Map
         config = new ValidationConfig(session?.config?.navigate('validation') as Map, params)
-        def Boolean containsFullParameter = params.containsKey(config.help.fullParameter)
-        def Boolean containsShortParameter = params.containsKey(config.help.shortParameter)
+        def Boolean containsFullParameter = params.containsKey(config.help.fullParameter) && params[config.help.fullParameter]
+        def Boolean containsShortParameter = params.containsKey(config.help.shortParameter) && params[config.help.shortParameter]
         if (config.help.enabled && (containsFullParameter || containsShortParameter)) {
             def String help = ""
             def HelpMessage helpMessage = new HelpMessage(config, session)
@@ -167,10 +172,6 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
     }
-
-    Session getSession(){
-        Global.getSession() as Session
-    }  
 
     boolean hasErrors() { errors.size()>0 }
     List<String> getErrors() { errors }
