@@ -150,17 +150,19 @@ class SchemaValidator extends PluginExtensionPoint {
         def Boolean containsFullParameter = params.containsKey(config.help.fullParameter)
         def Boolean containsShortParameter = params.containsKey(config.help.shortParameter)
         if (config.help.enabled && (containsFullParameter || containsShortParameter)) {
+            def String help = ""
             def HelpMessage helpMessage = new HelpMessage(config, session)
-            helpMessage.printBeforeText()
+            help += helpMessage.getBeforeText()
             if (containsFullParameter) {
                 log.debug("Printing out the full help message")
-                helpMessage.printFullHelpMessage()
+                help += helpMessage.getFullHelpMessage()
             } else if (containsShortParameter) {
                 log.debug("Printing out the short help message")
                 def paramValue = params.get(config.help.shortParameter)
-                helpMessage.printShortHelpMessage(paramValue instanceof String ? paramValue : "")
+                help += helpMessage.getShortHelpMessage(paramValue instanceof String ? paramValue : "")
             }
-            helpMessage.printAfterText()
+            help += helpMessage.getAfterText()
+            log.info(help)
             System.exit(0)
         }
 

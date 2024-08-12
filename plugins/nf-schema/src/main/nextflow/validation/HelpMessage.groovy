@@ -31,7 +31,7 @@ class HelpMessage {
         addHelpParameters()
     }
 
-    public void printShortHelpMessage(String param) {
+    public String getShortHelpMessage(String param) {
         def String helpMessage = ""
         if (param) {
             def List<String> paramNames = param.tokenize(".") as List<String>
@@ -57,26 +57,28 @@ class HelpMessage {
         } else {
             helpMessage = getGroupHelpString()
         }
-        log.info(helpMessage)
+        return helpMessage
     }
 
-    public printFullHelpMessage() {
-        log.info(getGroupHelpString(true))
+    public String getFullHelpMessage() {
+        return getGroupHelpString(true)
     }
 
-    public printBeforeText() {
-        log.info(config.help.beforeText)
+    public String getBeforeText() {
+        def String beforeText = config.help.beforeText
         if (config.help.command) {
-            log.info("Typical pipeline command:\n")
-            log.info("  ${colors.cyan}${config.help.command}${colors.reset}\n")
+            beforeText += "Typical pipeline command:\n"
+            beforeText += "  ${colors.cyan}${config.help.command}${colors.reset}\n"
         }
     }
 
-    public printAfterText() {
+    public String getAfterText() {
+        def String afterText = ""
         if (hiddenParametersCount > 0) {
-            log.info(" ${colors.dim}!! Hiding ${hiddenParametersCount} param(s), use the `--${config.help.showHiddenParameter}` parameter to show them !!${colors.reset}")
+            afterText += " ${colors.dim}!! Hiding ${hiddenParametersCount} param(s), use the `--${config.help.showHiddenParameter}` parameter to show them !!${colors.reset}"
         }
-        log.info(config.help.afterText)
+        afterText += "-${colors.dim}----------------------------------------------------${colors.reset}-"
+        afterText += config.help.afterText
     }
 
     //
