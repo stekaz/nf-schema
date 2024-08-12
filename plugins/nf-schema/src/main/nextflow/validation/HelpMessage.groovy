@@ -28,6 +28,7 @@ class HelpMessage {
         config = inputConfig
         colors = Utils.logColours(config.monochromeLogs)
         paramsMap = Utils.paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), config.parametersSchema)) )
+        addHelpParameters()
     }
 
     public void printShortHelpMessage(String param) {
@@ -47,7 +48,7 @@ class HelpMessage {
                 }
             }
             if (!paramOptions) {
-                throw new Exception("Specified param '${paramName}' does not exist in JSON schema.")
+                throw new Exception("Unable to create help message: Specified param '${param}' does not exist in JSON schema.")
             }
             if(paramOptions.containsKey("properties")) {
                 paramOptions.properties = removeHidden(paramOptions.properties)
@@ -160,9 +161,10 @@ class HelpMessage {
     //
     private List<String> getHelpListParams(Map<String,Map> params, Integer maxChars, String parentParameter = "") {
         def List helpMessage = []
+        def Integer typeMaxChars = Utils.longestStringLength(params.collect { key, value -> value.type instanceof String ? "[${value.type}]" : value.type as String})
         for (String paramName in params.keySet()) {
             def Map paramOptions = params.get(paramName) as Map 
-            def String type = '[' + paramOptions.type + ']'
+            def String type = paramOptions.type instanceof String ? '[' + paramOptions.type + ']' : paramOptions.type as String
             def String enumsString = ""
             if (paramOptions.enum != null) {
                 def List enums = (List) paramOptions.enum
@@ -183,7 +185,7 @@ class HelpMessage {
             if (descriptionDefault.length() > terminalLength){
                 descriptionDefault = wrapText(descriptionDefault)
             }
-            helpMessage.add("  --" +  paramName.padRight(maxChars) + colors.dim + type.padRight(10) + colors.reset + descriptionDefault)
+            helpMessage.add("  --" +  paramName.padRight(maxChars) + colors.dim + type.padRight(typeMaxChars + 1) + colors.reset + descriptionDefault)
         }
         return helpMessage
     }
@@ -205,5 +207,27 @@ class HelpMessage {
         }
         return returnMap
     }
+
+    //
+    // This function adds the help parameters to the main parameters map as ungrouped parameters
+    //
+    private void addHelpParameters() {
+        if (!paramsMap.containsKey(null)) {
+            paramsMap[null] = [:]
+        }
+        paramsMap[null][config.help.shortParameter] = [
+            "type": ["boolean", "string"],
+            "description": "Show the help message for all top level parameters. When a parameter is given to `--${config.help.shortParameter}`, the full help message of that parameter will be printed."
+        ]
+        paramsMap[null][config.help.fullParameter] = [
+            "type": "boolean",
+            "description": "Show the help message for all non-hidden parameters."
+        ]
+        paramsMap[null][config.help.showHiddenParameter] = [
+            "type": "boolean",
+            "description": "Show all hidden parameters in the help message. This needs to be used in combination with `--${config.help.shortParameter}` or `--${config.help.fullParameter}`."
+        ]
+    }
+
 
 }
