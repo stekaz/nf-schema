@@ -370,6 +370,8 @@ class SchemaValidator extends PluginExtensionPoint {
 Using `paramsHelp()` is not recommended. Check out the help message migration guide: <url>
 If you intended to use this function, please add the following option to the input of the function:
     `hideWarning: true`
+
+Please contact the pipeline maintainer(s) if you see this warning as a user.
             """)
         }
 
