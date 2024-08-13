@@ -356,155 +356,39 @@ class SchemaValidator extends PluginExtensionPoint {
         return new Tuple (expectedParams, enums)
     }
 
-
-    //
-    // Wrap too long text
-    //
-    String wrapText(String text) {
-        List olines = []
-        String oline = ""
-        text.split(" ").each() { wrd ->
-            if ((oline.size() + wrd.size()) <= terminalLength) {
-                oline += wrd + " "
-            } else {
-                olines += oline
-                oline = wrd + " "
-            }
-        }
-        olines += oline
-        return olines.join("\n")
-    }
-
     //
     // Beautify parameters for --help
     //
     @Function
     public String paramsHelp(
-        Map options = null,
+        Map options = [:],
         String command
     ) {
         // TODO add link to help message migration guide once created
-        log.warn("Using `paramsHelp()` is deprecated. Check out the help message migration guide: <url>")
-        def Map params = initialiseExpectedParams(session.params)
-
-        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : config.parametersSchema
-        def colors = Utils.logColours(config.monochromeLogs)
-        Integer num_hidden = 0
-        String output  = ''
-        output        += 'Typical pipeline command:\n\n'
-        output        += "  ${colors.cyan}${command}${colors.reset}\n\n"
-        Map paramsMap = Utils.paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
-        Integer maxChars  = Utils.paramsMaxChars(paramsMap) + 1
-
-        // Make sure the hidden parameters count is 0
-        hiddenParametersCount = 0
-
-        // If a value is passed to help
-        if (params.help instanceof String) {
-            def String paramName = params.help
-            def List<String> paramNames = params.help.tokenize(".") as List<String>
-            def Map paramOptions = [:]
-            for (group in paramsMap.keySet()) {
-                def Map group_params = paramsMap.get(group) as Map // This gets the parameters of that particular group
-                if (group_params.containsKey(paramNames[0])) {
-                    paramOptions = group_params.get(paramNames[0]) as Map 
-                }
-            }
-            if (paramNames.size() > 1) {
-                paramNames.remove(0)
-                paramNames.each {
-                    paramOptions = (Map) paramOptions?.properties?[it] ?: [:]
-                }
-            }
-            if (!paramOptions) {
-                throw new Exception("Specified param '${paramName}' does not exist in JSON schema.")
-            }
-            output += getDetailedHelpString(paramName, paramOptions, colors)
-            output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
-            return output
+        if (!options.containsKey("hideWarning") || options.hideWarning == false) {
+            log.warn("""
+Using `paramsHelp()` is not recommended. Check out the help message migration guide: <url>
+If you intended to use this function, please add the following option to the input of the function:
+    `hideWarning: true`
+            """)
         }
 
-        for (group in paramsMap.keySet()) {
-            Integer num_params = 0
-            String group_output = "$colors.underlined$colors.bold$group$colors.reset\n"
-            def Map group_params = paramsMap.get(group) as Map // This gets the parameters of that particular group
-            group_output += getHelpList(group_params, colors, maxChars).join("\n") + "\n"
-            if (group_output != "\n"){
-                output += group_output
-            }
-        }
-        if (num_hidden > 0){
-            output += "$colors.dim !! Hiding $num_hidden params, use the 'validation.showHiddenParams' config value to show them !!\n$colors.reset"
-        }
-        output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
-        return output
-    }
-
-    //
-    // Get help text in string format
-    //
-    private List<String> getHelpList(Map<String,Map> params, Map colors, Integer maxChars, String parentParameter = "") {
-        def List<String> helpMessage = []
-        for (String paramName in params.keySet()) {
-            def Map paramOptions = params.get(paramName) as Map 
-            if (paramOptions.hidden && !config.help.showHidden) {
-                hiddenParametersCount += 1
-                continue
-            }
-            def String type = '[' + paramOptions.type + ']'
-            def String enumsString = ""
-            if (paramOptions.enum != null) {
-                def List enums = (List) paramOptions.enum
-                def String chopEnums = enums.join(", ")
-                if(chopEnums.length() > terminalLength){
-                    chopEnums = chopEnums.substring(0, terminalLength-5)
-                    chopEnums = chopEnums.substring(0, chopEnums.lastIndexOf(",")) + ", ..."
-                }
-                enumsString = " (accepted: " + chopEnums + ") "
-            }
-            def String description = paramOptions.description ? paramOptions.description as String + " " : ""
-            def defaultValue = paramOptions.default != null ? "[default: " + paramOptions.default.toString() + "] " : ''
-            def String nestedParamName = parentParameter ? parentParameter + "." + paramName : paramName
-            def String nestedString = paramOptions.properties ? "(This parameter has sub-parameters. Use '--help ${nestedParamName}' to see all sub-parameters) " : ""
-            def descriptionDefault = description + colors.dim + enumsString + defaultValue + colors.reset + nestedString
-            // Wrap long description texts
-            // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
-            if (descriptionDefault.length() > terminalLength){
-                descriptionDefault = wrapText(descriptionDefault)
-            }
-            helpMessage.add("  --" +  paramName.padRight(maxChars) + colors.dim + type.padRight(10) + colors.reset + descriptionDefault)
-        }
-        return helpMessage
-    }
-
-    //
-    // Get a detailed help string from one parameter
-    //
-    private String getDetailedHelpString(String paramName, Map paramOptions, Map colors) {
-        def String helpMessage = "--" + paramName + '\n'
-        for (option in paramOptions) {
-            def String key = option.key
-            if (key == "fa_icon" || (key == "type" && option.value == "object")) {
-                continue
-            }
-            if (key == "properties") {
-                def Map subParamsOptions = option.value as Map
-                def Integer maxChars = Utils.paramsMaxChars(subParamsOptions) + 2
-                def String subParamsHelpString = getHelpList(subParamsOptions, colors, maxChars, paramName)
-                    .collect {
-                        "      ." + it[4..it.length()-1]
-                    }
-                    .join("\n")
-                helpMessage += "    " + colors.dim + "options".padRight(11) + ": " + colors.reset + "\n" + subParamsHelpString + "\n"
-                continue
-            }
-            def String value = option.value
-            if (value.length() > terminalLength) {
-                value = wrapText(value)
-            }
-            helpMessage += "    " + colors.dim + key.padRight(11) + ": " + colors.reset + value + '\n'
-        }
-        return helpMessage
+        def Map params = session.params
+        def Map validationConfig = (Map)session.config.navigate("validation")
+        validationConfig.parametersSchema = options.containsKey('parameters_schema') ? options.parameters_schema as String : config.parametersSchema
+        validationConfig.help = (Map)validationConfig.help + [command: command, beforeText: "", afterText: ""]
+        def ValidationConfig copyConfig = new ValidationConfig(validationConfig, params)
+        def HelpMessage helpMessage = new HelpMessage(copyConfig, session)
+        def String help = helpMessage.getBeforeText()
+        def List<String> helpBodyLines = helpMessage.getShortHelpMessage(params.help && params.help instanceof String ? params.help : "").readLines()
+        help += helpBodyLines.findAll {
+            // Remove added ungrouped help parameters
+            !it.startsWith("--${copyConfig.help.shortParameter}") && 
+            !it.startsWith("--${copyConfig.help.fullParameter}") && 
+            !it.startsWith("--${copyConfig.help.showHiddenParameter}")
+        }.join("\n")
+        help += helpMessage.getAfterText()
+        return help
     }
 
     //
