@@ -70,6 +70,7 @@ class HelpMessage {
             beforeText += "Typical pipeline command:\n\n"
             beforeText += "  ${colors.cyan}${config.help.command}${colors.reset}\n\n"
         }
+        return beforeText
     }
 
     public String getAfterText() {
@@ -79,6 +80,7 @@ class HelpMessage {
         }
         afterText += "-${colors.dim}----------------------------------------------------${colors.reset}-\n"
         afterText += config.help.afterText
+        return afterText
     }
 
     //
@@ -229,6 +231,24 @@ class HelpMessage {
             "type": "boolean",
             "description": "Show all hidden parameters in the help message. This needs to be used in combination with `--${config.help.shortParameter}` or `--${config.help.fullParameter}`."
         ]
+    }
+
+    //
+    // Wrap too long text
+    //
+    private String wrapText(String text) {
+        def List olines = []
+        def String oline = ""
+        text.split(" ").each() { wrd ->
+            if ((oline.size() + wrd.size()) <= terminalLength) {
+                oline += wrd + " "
+            } else {
+                olines += oline
+                oline = wrd + " "
+            }
+        }
+        olines += oline
+        return olines.join("\n")
     }
 
 
