@@ -150,7 +150,7 @@ class SchemaValidator extends PluginExtensionPoint {
         this.session = session
 
         // Help message logic
-        def Map params = session.params as Map
+        def Map params = (Map)session.params ?: [:]
         config = new ValidationConfig(session?.config?.navigate('validation') as Map, params)
         def Boolean containsFullParameter = params.containsKey(config.help.fullParameter) && params[config.help.fullParameter]
         def Boolean containsShortParameter = params.containsKey(config.help.shortParameter) && params[config.help.shortParameter]
@@ -447,7 +447,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def List<String> helpMessage = []
         for (String paramName in params.keySet()) {
             def Map paramOptions = params.get(paramName) as Map 
-            if (paramOptions.hidden && !config.showHiddenParams) {
+            if (paramOptions.hidden && !config.help.showHidden) {
                 hiddenParametersCount += 1
                 continue
             }

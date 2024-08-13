@@ -35,6 +35,6 @@ class HelpConfig {
         beforeText          = config.beforeText                 ?: ""
         afterText           = config.afterText                  ?: ""
         command             = config.command                    ?: ""
-        showHidden          = params.get(showHiddenParameter)   ?: config.showHidden    ?: false
+        showHidden          = params.get(showHiddenParameter) ?: config.showHidden    ?: false
     }
 }

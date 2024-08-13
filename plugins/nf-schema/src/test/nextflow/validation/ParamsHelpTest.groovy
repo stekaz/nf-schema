@@ -105,7 +105,9 @@ class ParamsHelpTest extends Dsl2Spec{
 
         when:
         def config = ["validation": [
-            "showHiddenParams": true
+            "help": [
+                "showHidden": true
+            ]
         ]]
         def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
