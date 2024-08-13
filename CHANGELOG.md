@@ -10,6 +10,7 @@
 
 1. The plugin now fully supports nested parameters!
 2. Added a config option `validation.parametersSchema` which can be used to set the parameters JSON schema in a config file. The default is `nextflow_schema.json`
+3. The parameter summary log will now automatically show nested parameters.
 
 ## Help message changes
 
@@ -25,6 +26,7 @@
    - `validation.help.command`: An example command to add to the top of the help message
 3. Added support for nested parameters to the help message. A detailed help message using `--help <parameter>` will now also contain all nested parameters. The parameter supplied to `--help` can be a nested parameter too (e.g. `--help top_parameter.nested_parameter.deeper_parameter`)
 4. The help message now won't show empty parameter groups.
+5. The help message will now automatically contain the three parameters used to get help messages.
 
 ## JSON schema fixes
 
