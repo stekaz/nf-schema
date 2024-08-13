@@ -2,9 +2,29 @@
 
 # Version 2.1.0
 
+## Breaking changes
+
+1. The minimum supported Nextflow version is now `23.10.0` instead of `22.10.0`
+
 ## New features
 
 1. The plugin now fully supports nested parameters!
+2. Added a config option `validation.parametersSchema` which can be used to set the parameters JSON schema in a config file. The default is `nextflow_schema.json`
+
+## Help message changes
+
+1. The use of the `paramsHelp()` function has now been deprecated in favor of a new built-in help message functionality. `paramsHelp()` has been updated to use the reworked help message creator. If you still want to use `paramsHelp()` for some reason in your pipeline, please add the `hideWarning:true` option to it to make sure the deprecation warning will not be shown.
+2. Added new configuration values to support the new help message functionality:
+   - `validation.help.enabled`: Enables the checker for the help message parameters. The plugin will automatically show the help message when one of these parameters have been given and exit the pipeline. Default = `false`
+   - `validation.help.shortParameter`: The parameter to use for the compact help message. This help message will only contain top level parameters. Default = `help`
+   - `validation.help.fullParameter`: The parameter to use for the expanded help message. This help message will show all parameters no matter how deeply nested they are. Default = `helpFull`
+   - `validation.help.showHiddenParameter`: The parameter to use to also show all parameters with the `hidden: true` keyword in the schema. Default = `showHidden`
+   - `validation.help.showHidden`: Set this to `true` to show hidden parameters by default. This configuration option is overwritten by the value supplied to the parameter in `validation.help.showHiddenParameter`. Default = `false`
+   - `validation.help.beforeText`: Some custom text to add before the help message.
+   - `validation.help.afterText`: Some custom text to add after the help message.
+   - `validation.help.command`: An example command to add to the top of the help message
+3. Added support for nested parameters to the help message. A detailed help message using `--help <parameter>` will now also contain all nested parameters. The parameter supplied to `--help` can be a nested parameter too (e.g. `--help top_parameter.nested_parameter.deeper_parameter`)
+4. The help message now won't show empty parameter groups.
 
 ## JSON schema fixes
 

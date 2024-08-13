@@ -77,7 +77,7 @@ public class JsonSchemaValidator {
                 }
             }
 
-            def String[] locationList = instanceLocation.split("/").findAll { it != "" }
+            def List<String> locationList = instanceLocation.split("/").findAll { it != "" } as List
 
             if (locationList.size() > 0 && Utils.isInteger(locationList[0]) && validationType == "field") {
                 def Integer entryInteger = locationList[0] as Integer
