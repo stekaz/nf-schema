@@ -105,7 +105,7 @@ class HelpMessage {
                         "      --" + it[4..it.length()-1]
                     }
                     .join("\n")
-                helpMessage += "    " + colors.dim + "options".padRight(optionMaxChars) + ": " + colors.reset + "\n" + subParamsHelpString + "\n"
+                helpMessage += "    " + colors.dim + "options".padRight(optionMaxChars) + ": " + colors.reset + "\n" + subParamsHelpString + "\n\n"
                 continue
             }
             def String value = option.value

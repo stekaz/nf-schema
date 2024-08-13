@@ -136,7 +136,7 @@ class ParamsHelpTest extends Dsl2Spec{
         """
 
         when:
-        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        def result = new MockScriptRunner([validation:[monochromeLogs:true]]).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -177,7 +177,7 @@ class ParamsHelpTest extends Dsl2Spec{
 
         then:
         def error = thrown(Exception)
-        error.message == "Specified param 'no_exist' does not exist in JSON schema."
+        error.message == "Unable to create help message: Specified param 'no_exist' does not exist in JSON schema."
         !stdout
     }
 
@@ -195,14 +195,14 @@ class ParamsHelpTest extends Dsl2Spec{
         """
 
         when:
-        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        def result = new MockScriptRunner([validation:[monochromeLogs:true]]).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
                 .findResults {it.startsWith('--this.is') ||
                     it.contains('description:') ||
                     it.contains('options    :') ||
-                    it.contains('.so')
+                    it.contains('this.is.so.deep')
                     ? it : null }
 
         then:

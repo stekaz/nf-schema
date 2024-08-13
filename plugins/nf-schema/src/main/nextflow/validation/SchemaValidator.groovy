@@ -376,9 +376,9 @@ Please contact the pipeline maintainer(s) if you see this warning as a user.
         }
 
         def Map params = session.params
-        def Map validationConfig = (Map)session.config.navigate("validation")
-        validationConfig.parametersSchema = options.containsKey('parameters_schema') ? options.parameters_schema as String : config.parametersSchema
-        validationConfig.help = (Map)validationConfig.help + [command: command, beforeText: "", afterText: ""]
+        def Map validationConfig = (Map)session.config.navigate("validation") ?: [:]
+        validationConfig.parametersSchema = options.containsKey('parameters_schema') ? options.parameters_schema as String : validationConfig.parametersSchema
+        validationConfig.help = (Map)(validationConfig.help ?: [:]) + [command: command, beforeText: "", afterText: ""]
         def ValidationConfig copyConfig = new ValidationConfig(validationConfig, params)
         def HelpMessage helpMessage = new HelpMessage(copyConfig, session)
         def String help = helpMessage.getBeforeText()
