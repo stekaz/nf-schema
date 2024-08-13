@@ -2,6 +2,10 @@
 
 # Version 2.1.0
 
+## Breaking changes
+
+1. The minimum supported Nextflow version is now `23.10.0` instead of `22.10.0`
+
 ## New features
 
 1. The plugin now fully supports nested parameters!
