@@ -355,7 +355,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
                 .toString()
                 .readLines()
                 .collect {
-                    it.split("nextflow.validation.SamplesheetConverter - ")[-1]
+                    it.split("nextflow.validation.SamplesheetConverter -- ")[-1]
                 }
 
         then:

@@ -125,7 +125,7 @@ class SamplesheetConverter {
 
         if (input instanceof Map) {
             def List result = []
-            def LinkedHashMap properties = schema["properties"]
+            def Map properties = schema["properties"] as Map
             def Set unusedKeys = input.keySet() - properties.keySet()
             
             // Check for properties in the samplesheet that have not been defined in the schema
@@ -234,7 +234,7 @@ class SamplesheetConverter {
 
         if (input instanceof Map) {
             def Map result = [:]
-            def LinkedHashMap properties = schema["properties"]
+            def Map properties = schema["properties"] as Map
             def Set unusedKeys = input.keySet() - properties.keySet()
             
             // Check for properties in the samplesheet that have not been defined in the schema
