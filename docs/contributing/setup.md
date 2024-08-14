@@ -13,9 +13,33 @@ To compile and run the tests use the following command:
 ./gradlew check
 ```
 
-## Launch it with Nextflow
+## Launch it with installed Nextflow
 
-To test with Nextflow for development purpose:
+!!! warning
+
+    This method will add the development version of the plugin to your Nextflow plugins
+    Take care when using this method and make sure that you are never using a 
+    development version to run real pipelines.
+    You can delete all `nf-schema` versions using this command:
+    ```bash
+    rm -rf ~/.nextflow/plugins/nf-schema*
+    ```
+
+Install the current version of the plugin in your `.nextflow/plugins` folder
+
+```bash
+make install
+```
+
+Update or add the nf-schema plugin with the installed version in your test pipeline
+
+```groovy title="nextflow.config"
+plugins {
+    id 'nf-schema@x.y.z'
+}
+```
+
+## Launch it with a local version of Nextflow
 
 Clone the Nextflow repo into a sibling directory
 
