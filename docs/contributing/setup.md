@@ -18,7 +18,7 @@ To compile and run the tests use the following command:
 !!! warning
 
     This method will add the development version of the plugin to your Nextflow plugins
-    Take care when using this method and make sure that you are never using a 
+    Take care when using this method and make sure that you are never using a
     development version to run real pipelines.
     You can delete all `nf-schema` versions using this command:
     ```bash

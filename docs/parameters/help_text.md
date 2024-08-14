@@ -91,12 +91,12 @@ There are three different help messages:
     ```bash
     --reference  [object]          A group of parameters to configure the reference sets
     --type       [string]          The analysis type (accepted: WES, WGS)
-    --help       [boolean, string] Show the help message for all top level parameters. When a parameter is given to `--help`, the full help message of that parameter will be printed. 
-    --helpFull   [boolean]         Show the help message for all non-hidden parameters. 
-    --showHidden [boolean]         Show all hidden parameters in the help message. This needs to be used in combination with `--help` or `--helpFull`. 
+    --help       [boolean, string] Show the help message for all top level parameters. When a parameter is given to `--help`, the full help message of that parameter will be printed.
+    --helpFull   [boolean]         Show the help message for all non-hidden parameters.
+    --showHidden [boolean]         Show all hidden parameters in the help message. This needs to be used in combination with `--help` or `--helpFull`.
 
     Input parameters
-        --input  [string] The input samplesheet 
+        --input  [string] The input samplesheet
         --outdir [string] The output directory [default: results]
     ```
 
@@ -108,12 +108,12 @@ There are three different help messages:
     --reference.aligners.bwa    [string]          The BWA index
     --reference.aligners.bowtie [string]          The BOWTIE index
     --type                      [string]          The analysis type (accepted: WES, WGS)
-    --help                      [boolean, string] Show the help message for all top level parameters. When a parameter is given to `--help`, the full help message of that parameter will be printed. 
-    --helpFull                  [boolean]         Show the help message for all non-hidden parameters. 
-    --showHidden                [boolean]         Show all hidden parameters in the help message. This needs to be used in combination with `--help` or `--helpFull`. 
+    --help                      [boolean, string] Show the help message for all top level parameters. When a parameter is given to `--help`, the full help message of that parameter will be printed.
+    --helpFull                  [boolean]         Show the help message for all non-hidden parameters.
+    --showHidden                [boolean]         Show all hidden parameters in the help message. This needs to be used in combination with `--help` or `--helpFull`.
 
     Input parameters
-        --input                 [string] The input samplesheet 
+        --input                 [string] The input samplesheet
         --outdir                [string] The output directory [default: results]
     ```
 

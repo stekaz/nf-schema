@@ -56,7 +56,7 @@ validation.failUnrecognisedParams = <true|false> // default: false
 
 ## showHiddenParams
 
-!!! deprecated 
+!!! deprecated
 
     This configuration option has been <b>deprecated</b> since v2.1.0. Please use `validation.help.showHidden` instead.
 
@@ -88,7 +88,7 @@ validation.defaultIgnoreParams = ["param1", "param2"] // default: []
 
 ## help
 
-The `validation.help` config scope can be used to configure the creation of the help message. 
+The `validation.help` config scope can be used to configure the creation of the help message.
 
 This scope contains the following options:
 
