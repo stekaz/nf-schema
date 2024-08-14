@@ -106,13 +106,13 @@ Nested parameters can be specified in the schema by adding a `properties` keywor
 {
   "type": "object",
   "properties": {
-    "nested": {
-      // Annotation for the --nested parameter
+    "thisIsNested": {
+      // Annotation for the --thisIsNested parameter
       "type": "object", // Parameters that contain subparameters need to have the "object" type
       "properties": {
         // Add other parameters in here
         "deep": {
-          // Annotation for the --nested.deep parameter
+          // Annotation for the --thisIsNested.deep parameter
           "type": "string"
         }
       }
