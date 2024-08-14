@@ -325,9 +325,9 @@ public class Utils {
         def paramsMap = [:]
         // Grouped params
         if (schema_defs) {
-            for (group in schema_defs) {
-                def Map group_property = (Map) group.value['properties'] // Gets the property object of the group
-                def String title = (String) group.value['title']
+            schema_defs.each { String name, Map group ->
+                def Map group_property = (Map) group.get('properties') // Gets the property object of the group
+                def String title = (String) group.get('title') ?: name
                 def sub_params = [:]
                 group_property.each { innerkey, value ->
                     sub_params.put(innerkey, value)
