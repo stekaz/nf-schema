@@ -148,7 +148,7 @@ Any string provided to this option will printed before the help message.
 validation.help.beforeText = "Running pipeline version 1.0" // default: ""
 ```
 
-!!! info 
+!!! info
 
     All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
 
@@ -170,7 +170,7 @@ Typical pipeline command:
   nextflow run main.nf --input samplesheet.csv --outdir output
 ```
 
-!!! info 
+!!! info
 
     All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
 
@@ -184,7 +184,7 @@ Any string provided to this option will be printed after the help message.
 validation.help.afterText = "Please cite the pipeline owners when using this pipeline" // default: ""
 ```
 
-!!! info 
+!!! info
 
     All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
 
@@ -202,7 +202,7 @@ Any string provided to this option will printed before the parameters log messag
 validation.summary.beforeText = "Running pipeline version 1.0" // default: ""
 ```
 
-!!! info 
+!!! info
 
     All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
 
@@ -214,6 +214,6 @@ Any string provided to this option will be printed after the parameters log mess
 validation.summary.afterText = "Please cite the pipeline owners when using this pipeline" // default: ""
 ```
 
-!!! info 
+!!! info
 
     All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
