@@ -35,7 +35,7 @@ class HelpConfig {
         if (monochromeLogs) {
             beforeText  = config.beforeText ? Utils.removeColors(config.beforeText): ""
             afterText   = config.afterText  ? Utils.removeColors(config.afterText) : ""
-            command     = config.command    ? Utils.removeColors(config.afterText) : ""
+            command     = config.command    ? Utils.removeColors(config.command)   : ""
         } else {
             beforeText  = config.beforeText ?: ""
             afterText   = config.afterText  ?: ""

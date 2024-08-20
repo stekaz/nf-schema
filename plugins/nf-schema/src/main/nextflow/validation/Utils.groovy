@@ -271,6 +271,7 @@ public class Utils {
     }
 
     public static String removeColors(String input) {
+        if (!input) {return input}
         String output = input
         List colors = logColours(false).collect { it.value }
         colors.each { color ->
