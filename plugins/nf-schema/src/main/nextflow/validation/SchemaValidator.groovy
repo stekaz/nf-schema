@@ -500,6 +500,7 @@ Please contact the pipeline maintainer(s) if you see this warning as a user.
 
         def colors = Utils.logColours(config.monochromeLogs)
         String output  = ''
+        output += config.summary.beforeText
         def Map paramsMap = paramsSummaryMap(workflow, parameters_schema: schemaFilename)
         paramsMap.each { key, value ->
             paramsMap[key] = flattenNestedParamsMap(value as Map)
@@ -517,6 +518,7 @@ Please contact the pipeline maintainer(s) if you see this warning as a user.
         }
         output += "!! Only displaying parameters that differ from the pipeline defaults !!\n"
         output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
+        output += config.summary.afterText
         return output
     }
 

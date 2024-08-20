@@ -11,6 +11,7 @@
 1. The plugin now fully supports nested parameters!
 2. Added a config option `validation.parametersSchema` which can be used to set the parameters JSON schema in a config file. The default is `nextflow_schema.json`
 3. The parameter summary log will now automatically show nested parameters.
+4. Added two new configuration options: `validation.summary.beforeText` and `validation.summary.afterText` to automatically add some text before and after the output of the `paramsSummaryLog()` function. The colors from these texts will be automatically filtered out if `validation.monochromeLogs` is set to `true`.
 
 ## Help message changes
 
@@ -21,9 +22,9 @@
    - `validation.help.fullParameter`: The parameter to use for the expanded help message. This help message will show all parameters no matter how deeply nested they are. Default = `helpFull`
    - `validation.help.showHiddenParameter`: The parameter to use to also show all parameters with the `hidden: true` keyword in the schema. Default = `showHidden`
    - `validation.help.showHidden`: Set this to `true` to show hidden parameters by default. This configuration option is overwritten by the value supplied to the parameter in `validation.help.showHiddenParameter`. Default = `false`
-   - `validation.help.beforeText`: Some custom text to add before the help message.
-   - `validation.help.afterText`: Some custom text to add after the help message.
-   - `validation.help.command`: An example command to add to the top of the help message
+   - `validation.help.beforeText`: Some custom text to add before the help message. The colors from this text will be automatically filtered out if `validation.monochromeLogs` is set to `true`.
+   - `validation.help.afterText`: Some custom text to add after the help message. The colors from this text will be automatically filtered out if `validation.monochromeLogs` is set to `true`.
+   - `validation.help.command`: An example command to add to the top of the help message. The colors from this text will be automatically filtered out if `validation.monochromeLogs` is set to `true`.
 3. Added support for nested parameters to the help message. A detailed help message using `--help <parameter>` will now also contain all nested parameters. The parameter supplied to `--help` can be a nested parameter too (e.g. `--help top_parameter.nested_parameter.deeper_parameter`)
 4. The help message now won't show empty parameter groups.
 5. The help message will now automatically contain the three parameters used to get help messages.

@@ -148,6 +148,10 @@ Any string provided to this option will printed before the help message.
 validation.help.beforeText = "Running pipeline version 1.0" // default: ""
 ```
 
+!!! info
+
+    All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
+
 ### command
 
 !!! example "This option does not affect the help message created by the `paramsHelp()` function"
@@ -166,6 +170,10 @@ Typical pipeline command:
   nextflow run main.nf --input samplesheet.csv --outdir output
 ```
 
+!!! info
+
+    All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
+
 ### afterText
 
 !!! example "This option does not affect the help message created by the `paramsHelp()` function"
@@ -175,3 +183,37 @@ Any string provided to this option will be printed after the help message.
 ```groovy
 validation.help.afterText = "Please cite the pipeline owners when using this pipeline" // default: ""
 ```
+
+!!! info
+
+    All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
+
+## Summary
+
+The `validation.summary` config scope can be used to configure the output of the `paramsSummaryLog()` function.
+
+This scope contains the following options:
+
+### beforeText
+
+Any string provided to this option will printed before the parameters log message.
+
+```groovy
+validation.summary.beforeText = "Running pipeline version 1.0" // default: ""
+```
+
+!!! info
+
+    All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
+
+### afterText
+
+Any string provided to this option will be printed after the parameters log message.
+
+```groovy
+validation.summary.afterText = "Please cite the pipeline owners when using this pipeline" // default: ""
+```
+
+!!! info
+
+    All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
