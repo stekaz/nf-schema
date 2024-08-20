@@ -108,7 +108,7 @@ This option can be used to change the `--help` parameter to another parameter. T
 validation.help.shortParameter = "giveMeHelp" // default: "help"
 ```
 
-`--giveMeHelp` will now display the help message instead of `--help` for this example. This parameter will print out the expanded help message.
+`--giveMeHelp` will now display the help message instead of `--help` for this example. This parameter will print out the help message.
 
 ### fullParameter
 
