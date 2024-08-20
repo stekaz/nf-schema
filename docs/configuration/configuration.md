@@ -170,7 +170,7 @@ Typical pipeline command:
 
 !!! example "This option does not affect `paramsHelp()`"
 
-Any string provided to this option will printed after the help message.
+Any string provided to this option will be printed after the help message.
 
 ```groovy
 validation.help.afterText = "Please cite the pipeline owners when using this pipeline" // default: ""
