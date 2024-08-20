@@ -22,7 +22,7 @@ There are three different help messages:
 
 1. Using `--help` will only show the top level parameters (`--input`, `--outdir`, `--reference` and `--type` in the example). The type, description, possible options and defaults of these parameters will also be added to the message if they are present in the JSON schema.
 2. Using `--helpFull` will print all parameters (no matter how deeply nested they are) (`--input`, `--outdir`, `--reference.fasta`, `--reference.fai`, `--reference.aligners.bwa`, `--reference.aligners.bowtie` and `--type` in the example)
-3. `--help` can also be used with a parameter given to it. This will print out a detailed help message of the parameter. This will also show and subparameters present for the parameter.
+3. `--help` can also be used with a parameter given to it. This will print out a detailed help message of the parameter. This will also show the subparameters present for the parameter.
 
 === "JSON schema"
 
