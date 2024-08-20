@@ -37,8 +37,8 @@ class ValidationConfig {
             log.warn("configuration option `validation.showHiddenParams` is deprecated, please use `validation.help.showHidden` or the `--showHidden` parameter instead")
         }
         parametersSchema        = config.parametersSchema       ?: "nextflow_schema.json"
-        help                    = new HelpConfig(config.help as Map ?: [:], params)
-        summary                 = new SummaryConfig(config.summary as Map ?: [:])
+        help                    = new HelpConfig(config.help as Map ?: [:], params, monochromeLogs)
+        summary                 = new SummaryConfig(config.summary as Map ?: [:], monochromeLogs)
 
         if(config.ignoreParams && !(config.ignoreParams instanceof List<String>)) {
             throw new SchemaValidationException("Config value 'validation.ignoreParams' should be a list of String values")
@@ -49,6 +49,4 @@ class ValidationConfig {
         }
         ignoreParams += config.defaultIgnoreParams ?: []
     }
-
-    String getPrefix() { prefix }
 }

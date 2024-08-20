@@ -20,9 +20,14 @@ class SummaryConfig {
     final public String beforeText
     final public String afterText
 
-    SummaryConfig(Map map) {
+    SummaryConfig(Map map, Boolean monochromeLogs) {
         def config = map ?: Collections.emptyMap()
-        beforeText  = config.beforeText ?: ""
-        afterText   = config.afterText  ?: ""
+        if (monochromeLogs) {
+            beforeText  = config.beforeText ? Utils.removeColors(config.beforeText): ""
+            afterText   = config.afterText  ? Utils.removeColors(config.afterText) : ""
+        } else {
+            beforeText  = config.beforeText ?: ""
+            afterText   = config.afterText  ?: ""
+        }
     }
 }

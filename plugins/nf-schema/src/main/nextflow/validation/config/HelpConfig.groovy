@@ -26,15 +26,21 @@ class HelpConfig {
     final public String  command
     final public Boolean showHidden
 
-    HelpConfig(Map map, Map params) {
+    HelpConfig(Map map, Map params, Boolean monochromeLogs) {
         def config = map ?: Collections.emptyMap()
         enabled             = config.enabled                    ?: false
         shortParameter      = config.shortParameter             ?: "help"
         fullParameter       = config.fullParameter              ?: "helpFull"
         showHiddenParameter = config.showHiddenParameter        ?: "showHidden"
-        beforeText          = config.beforeText                 ?: ""
-        afterText           = config.afterText                  ?: ""
-        command             = config.command                    ?: ""
+        if (monochromeLogs) {
+            beforeText  = config.beforeText ? Utils.removeColors(config.beforeText): ""
+            afterText   = config.afterText  ? Utils.removeColors(config.afterText) : ""
+            command     = config.command    ? Utils.removeColors(config.afterText) : ""
+        } else {
+            beforeText  = config.beforeText ?: ""
+            afterText   = config.afterText  ?: ""
+            command     = config.command    ?: ""
+        }
         showHidden          = params.get(showHiddenParameter)   ?: config.showHidden    ?: false
     }
 }

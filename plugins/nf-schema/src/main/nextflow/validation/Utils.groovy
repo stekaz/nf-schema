@@ -270,6 +270,15 @@ public class Utils {
         return colorcodes
     }
 
+    public static String removeColors(String input) {
+        String output = input
+        List colors = logColours(false).collect { it.value }
+        colors.each { color ->
+            output = output.replace(color, "")
+        }
+        return output
+    }
+
     //
     // This function tries to read a JSON params file
     //
