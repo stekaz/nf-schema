@@ -24,6 +24,7 @@ class ValidationConfig {
     final public String  parametersSchema
     final public Boolean showHiddenParams = false
     final public HelpConfig help
+    final public SummaryConfig summary
 
     final public List<String> ignoreParams
 
@@ -37,6 +38,7 @@ class ValidationConfig {
         }
         parametersSchema        = config.parametersSchema       ?: "nextflow_schema.json"
         help                    = new HelpConfig(config.help as Map ?: [:], params)
+        summary                 = new SummaryConfig(config.summary as Map ?: [:])
 
         if(config.ignoreParams && !(config.ignoreParams instanceof List<String>)) {
             throw new SchemaValidationException("Config value 'validation.ignoreParams' should be a list of String values")
