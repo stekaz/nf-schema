@@ -1,6 +1,6 @@
 # nextflow-io/nf-schema: Changelog
 
-# Version 2.1.0
+# Version 2.1.0 - Tantanmen
 
 ## Breaking changes
 
