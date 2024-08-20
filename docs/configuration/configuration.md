@@ -140,7 +140,7 @@ validation.help.showHidden = <true|false> // default: false
 
 ### beforeText
 
-!!! example "This option does not affect `paramsHelp()`"
+!!! example "This option does not affect the help message created by the `paramsHelp()` function"
 
 Any string provided to this option will printed before the help message.
 
@@ -150,7 +150,7 @@ validation.help.beforeText = "Running pipeline version 1.0" // default: ""
 
 ### command
 
-!!! example "This option does not affect `paramsHelp()`"
+!!! example "This option does not affect the help message created by the `paramsHelp()` function"
 
 This option can be used to add an example command to the help message. This will be printed after the `beforeText` and before the help message.
 
@@ -168,7 +168,7 @@ Typical pipeline command:
 
 ### afterText
 
-!!! example "This option does not affect `paramsHelp()`"
+!!! example "This option does not affect the help message created by the `paramsHelp()` function"
 
 Any string provided to this option will be printed after the help message.
 

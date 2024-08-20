@@ -121,7 +121,7 @@ Nested parameters can be specified in the schema by adding a `properties` keywor
 }
 ```
 
-There is no limit to how deeply nested parameters can be. Mind however that deeply nested parameters are not that user friendly and will create some very ugly help messages. It's adviced to not go deeper than two levels of nesting.
+There is no limit to how deeply nested parameters can be. Mind however that deeply nested parameters are not that user friendly and will create some very ugly help messages. It's advised to not go deeper than two levels of nesting.
 
 ## Required parameters
 

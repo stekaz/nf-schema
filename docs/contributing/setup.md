@@ -25,13 +25,13 @@ To compile and run the tests use the following command:
     rm -rf ~/.nextflow/plugins/nf-schema*
     ```
 
-Install the current version of the plugin in your `.nextflow/plugins` folder
+- Install the current version of the plugin in your `.nextflow/plugins` folder
 
 ```bash
 make install
 ```
 
-Update or add the nf-schema plugin with the installed version in your test pipeline
+- Update or add the nf-schema plugin with the installed version in your test pipeline
 
 ```groovy title="nextflow.config"
 plugins {
@@ -41,26 +41,26 @@ plugins {
 
 ## Launch it with a local version of Nextflow
 
-Clone the Nextflow repo into a sibling directory
+- Clone the Nextflow repo into a sibling directory
 
 ```bash
 cd .. && git clone https://github.com/nextflow-io/nextflow
 cd nextflow && ./gradlew exportClasspath
 ```
 
-Append to the `settings.gradle` in this project the following line:
+- Append to the `settings.gradle` in this project the following line:
 
 ```bash
 includeBuild('../nextflow')
 ```
 
-Compile the plugin code
+- Compile the plugin code
 
 ```bash
 ./gradlew compileGroovy
 ```
 
-Run nextflow with this command:
+- Run nextflow with this command:
 
 ```bash
 ./launch.sh run -plugins nf-schema <script/pipeline name> [pipeline params]
