@@ -26,6 +26,7 @@ Following list shows the major breaking changes introduced in nf-schema:
 3. The `unique` keyword for samplesheet schemas has been removed. Please use [`uniqueItems`](https://json-schema.org/understanding-json-schema/reference/array#uniqueItems) or [`uniqueEntries`](nextflow_schema/nextflow_schema_specification.md#uniqueentries) now instead.
 4. The `dependentRequired` keyword now works as it's supposed to work in JSON schema. See [`dependentRequired`](https://json-schema.org/understanding-json-schema/reference/conditionals#dependentRequired) for more information.
 5. All configuration parameters have been converted to Nextflow configuration options. See [Updating configuration](#updating-configuration) for more information.
+6. Help messages are now created automatically instead of using the `paramsHelp()` function. (v2.1.0 feature)
 
 A full list of changes can be found in the [changelog](https://github.com/nextflow-io/nf-schema/blob/master/CHANGELOG.md).
 
@@ -260,6 +261,32 @@ When you use `dependentRequired` in your schemas, you should update it like this
         },
         "dependentRequired": {
             "fastq_2": ["fastq_1"]
+        }
+    }
+    ```
+
+### Updating the help message
+
+!!! example "v2.1.0 feature"
+
+The creation of the help message now needs to be enabled in the configuration file. Using `--help` or `--helpFull` will automatically print the help message and stop the pipeline execution. `paramsHelp()` is still available in `nf-schema` and can still be used like before. This could be helpful to print the help message in specific cases. Mind that this function now automatically emits a deprecation warning. This warning can be disabled using the `hideWarning:true` option of the function.
+
+=== "nf-validation"
+
+    ```groovy title="main.nf"
+    if (params.help) {
+        log.info paramsHelp("nextflow run my_pipeline --input input_file.csv")
+        exit 0
+    }
+    ```
+
+=== "nf-schema"
+
+    ```groovy title="nextflow.config"
+    validation {
+        help {
+            enabled: true
+            command: "nextflow run my_pipeline --input input_file.csv"
         }
     }
     ```

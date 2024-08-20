@@ -82,9 +82,7 @@ However, they will be displayed as ungrouped in tools working off the schema.
 
 ## Nested parameters
 
-!!! warning "Warning (TLDR;)"
-
-    Although the JSON Schema allows schema objects (eg.` params.foo.bar = "baz"`) or arrays, this is not supported by this plugin.
+!!! example "New feature in v2.1.0"
 
 Nextflow config allows parameters to be nested as objects, for example:
 
@@ -102,12 +100,28 @@ or on the CLI:
 nextflow run <pipeline> --foo.bar "baz"
 ```
 
-But - the current implementations of the Nextflow _schema_ do not (for now).
+Nested parameters can be specified in the schema by adding a `properties` keyword to the root parameters:
 
-This was done as a conscious decision when the code was first written, to try to reduce complexity.
+```json
+{
+  "type": "object",
+  "properties": {
+    "thisIsNested": {
+      // Annotation for the --thisIsNested parameter
+      "type": "object", // Parameters that contain subparameters need to have the "object" type
+      "properties": {
+        // Add other parameters in here
+        "deep": {
+          // Annotation for the --thisIsNested.deep parameter
+          "type": "string"
+        }
+      }
+    }
+  }
+}
+```
 
-It would be great to implement this at some point - there is a GitHub issue to track the feature request here:
-[`nf-core/tools#1554`](https://github.com/nf-core/tools/issues/1554). Contributions welcome!
+There is no limit to how deeply nested parameters can be. Mind however that deeply nested parameters are not that user friendly and will create some very ugly help messages. It's advised to not go deeper than two levels of nesting.
 
 ## Required parameters
 

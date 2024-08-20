@@ -125,9 +125,9 @@ class HelpMessage {
         def Map<String,Map> visibleParamsMap = paramsMap.collectEntries { key, Map value -> [key, removeHidden(value)]}
         def Map<String,Map> parsedParams = showNested ? visibleParamsMap.collectEntries { key, Map value -> [key, flattenNestedSchemaMap(value)] } : visibleParamsMap
         def Integer maxChars = Utils.paramsMaxChars(parsedParams) + 1
-        if (parsedParams.containsKey(null)) {
-            def Map ungroupedParams = parsedParams[null]
-            parsedParams.remove(null)
+        if (parsedParams.containsKey("Other parameters")) {
+            def Map ungroupedParams = parsedParams["Other parameters"]
+            parsedParams.remove("Other parameters")
             helpMessage += getHelpListParams(ungroupedParams, maxChars + 2).collect {
                 it[2..it.length()-1]
             }.join("\n") + "\n\n"
@@ -216,18 +216,18 @@ class HelpMessage {
     // This function adds the help parameters to the main parameters map as ungrouped parameters
     //
     private void addHelpParameters() {
-        if (!paramsMap.containsKey(null)) {
-            paramsMap[null] = [:]
+        if (!paramsMap.containsKey("Other parameters")) {
+            paramsMap["Other parameters"] = [:]
         }
-        paramsMap[null][config.help.shortParameter] = [
+        paramsMap["Other parameters"][config.help.shortParameter] = [
             "type": ["boolean", "string"],
             "description": "Show the help message for all top level parameters. When a parameter is given to `--${config.help.shortParameter}`, the full help message of that parameter will be printed."
         ]
-        paramsMap[null][config.help.fullParameter] = [
+        paramsMap["Other parameters"][config.help.fullParameter] = [
             "type": "boolean",
             "description": "Show the help message for all non-hidden parameters."
         ]
-        paramsMap[null][config.help.showHiddenParameter] = [
+        paramsMap["Other parameters"][config.help.showHiddenParameter] = [
             "type": "boolean",
             "description": "Show all hidden parameters in the help message. This needs to be used in combination with `--${config.help.shortParameter}` or `--${config.help.fullParameter}`."
         ]
