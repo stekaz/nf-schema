@@ -128,7 +128,7 @@ This option can be used to change the `--showHidden` parameter to another parame
 validation.help.showHiddenParameter = "showMeThoseHiddenParams" // default: "showHidden"
 ```
 
-`--showHidden` will now make sure hidden parameters will be shown instead of `--showHidden` for this example.
+`--showMeThoseHiddenParams ` will now make sure hidden parameters will be shown instead of `--showHidden` for this example.
 
 ### showHidden
 
