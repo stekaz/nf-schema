@@ -366,7 +366,6 @@ class SchemaValidator extends PluginExtensionPoint {
         Map options = [:],
         String command
     ) {
-        // TODO add link to help message migration guide once created
         if (!options.containsKey("hideWarning") || options.hideWarning == false) {
             log.warn("""
 Using `paramsHelp()` is not recommended. Check out the help message migration guide: https://nextflow-io.github.io/nf-schema/latest/migration_guide/#updating-the-help-message
