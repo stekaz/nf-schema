@@ -2,6 +2,11 @@
 
 # Version 2.1.1
 
+## Bug fixes
+
+1. The help parameters are now no longer unexpected parameters when validating parameters.
+2. Fixed a typo in the docs
+
 # Version 2.1.0 - Tantanmen
 
 ## Breaking changes
