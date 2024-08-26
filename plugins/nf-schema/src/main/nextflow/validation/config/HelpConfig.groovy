@@ -41,6 +41,6 @@ class HelpConfig {
             afterText   = config.afterText  ?: ""
             command     = config.command    ?: ""
         }
-        showHidden          = params.get(showHiddenParameter)   ?: config.showHidden    ?: showHiddenParams ?: false
+        showHidden          = params.containsKey(showHiddenParameter) ? params.get(showHiddenParameter) : config.showHidden    ?: showHiddenParams ?: false
     }
 }
