@@ -285,8 +285,8 @@ The creation of the help message now needs to be enabled in the configuration fi
     ```groovy title="nextflow.config"
     validation {
         help {
-            enabled: true
-            command: "nextflow run my_pipeline --input input_file.csv"
+            enabled = true
+            command = "nextflow run my_pipeline --input input_file.csv"
         }
     }
     ```
