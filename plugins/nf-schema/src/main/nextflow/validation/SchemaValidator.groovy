@@ -232,8 +232,8 @@ class SchemaValidator extends PluginExtensionPoint {
     // Initialise expected params if not present
     //
     Map initialiseExpectedParams(Map params) {
-        if( !params.containsKey("help") ) {
-            params.help = false
+        addExpectedParams().each { param ->
+            params[param] = false
         }
         return params
     }
@@ -244,7 +244,9 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     List addExpectedParams() {
         def List expectedParams = [
-            "help"
+            config.help.shortParameter,
+            config.help.fullParameter,
+            config.help.showHiddenParameter
         ]
 
         return expectedParams
@@ -364,10 +366,9 @@ class SchemaValidator extends PluginExtensionPoint {
         Map options = [:],
         String command
     ) {
-        // TODO add link to help message migration guide once created
         if (!options.containsKey("hideWarning") || options.hideWarning == false) {
             log.warn("""
-Using `paramsHelp()` is not recommended. Check out the help message migration guide: <url>
+Using `paramsHelp()` is not recommended. Check out the help message migration guide: https://nextflow-io.github.io/nf-schema/latest/migration_guide/#updating-the-help-message
 If you intended to use this function, please add the following option to the input of the function:
     `hideWarning: true`
 

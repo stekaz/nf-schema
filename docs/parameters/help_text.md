@@ -5,7 +5,7 @@ Add the following configuration to your configuration files to enable the creati
 ```groovy title="nextflow.config"
 validation {
     help {
-        enabled: true
+        enabled = true
     }
 }
 ```
