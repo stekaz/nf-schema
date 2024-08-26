@@ -26,7 +26,7 @@ class HelpConfig {
     final public String  command
     final public Boolean showHidden
 
-    HelpConfig(Map map, Map params, Boolean monochromeLogs) {
+    HelpConfig(Map map, Map params, Boolean monochromeLogs, Boolean showHiddenParams) {
         def config = map ?: Collections.emptyMap()
         enabled             = config.enabled                    ?: false
         shortParameter      = config.shortParameter             ?: "help"
@@ -41,6 +41,6 @@ class HelpConfig {
             afterText   = config.afterText  ?: ""
             command     = config.command    ?: ""
         }
-        showHidden          = params.get(showHiddenParameter)   ?: config.showHidden    ?: false
+        showHidden          = params.get(showHiddenParameter)   ?: config.showHidden    ?: showHiddenParams ?: false
     }
 }
