@@ -1,5 +1,11 @@
 # nextflow-io/nf-schema: Changelog
 
+# Unreleased
+
+## Bug fixes
+
+1. Resolved an issue where the UniqueEntriesEvaluator did not correctly detect non-unique combinations.
+
 # Version 2.1.1
 
 ## Bug fixes
