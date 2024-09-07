@@ -1,11 +1,5 @@
 # nextflow-io/nf-schema: Changelog
 
-# Unreleased
-
-## Bug fixes
-
-1. Resolved an issue where the UniqueEntriesEvaluator did not correctly detect non-unique combinations.
-
 # Version 2.1.1
 
 ## Bug fixes
@@ -13,6 +7,7 @@
 1. The help parameters are now no longer unexpected parameters when validating parameters.
 2. Fixed a typo in the docs
 3. Added a URL to the help message migration docs to the `paramsHelp()` deprecation message
+4. Resolved an issue where the UniqueEntriesEvaluator did not correctly detect non-unique combinations.
 
 # Version 2.1.0 - Tantanmen
 
