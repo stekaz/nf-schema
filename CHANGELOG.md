@@ -8,6 +8,7 @@
 2. Fixed a typo in the docs
 3. Added a URL to the help message migration docs to the `paramsHelp()` deprecation message
 4. The old `validation.showHiddenParams` config option works again to ensure backwards compatibility. Using `validation.help.showHidden` is still preffered and the old option will emit a deprecation message.
+5. Resolved an issue where the UniqueEntriesEvaluator did not correctly detect non-unique combinations.
 
 # Version 2.1.0 - Tantanmen
 
