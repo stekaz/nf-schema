@@ -22,7 +22,7 @@ class ValidationConfig {
     final public Boolean monochromeLogs
     final public Boolean failUnrecognisedParams
     final public String  parametersSchema
-    final public Boolean showHiddenParams = false
+    final public Boolean showHiddenParams
     final public HelpConfig help
     final public SummaryConfig summary
 
@@ -33,11 +33,12 @@ class ValidationConfig {
         lenientMode             = config.lenientMode            ?: false
         monochromeLogs          = config.monochromeLogs         ?: false
         failUnrecognisedParams  = config.failUnrecognisedParams ?: false
-        if(config.showHiddenParams) {
+        showHiddenParams        = config.showHiddenParams       ?: false
+        if(config.containsKey("showHiddenParams")) {
             log.warn("configuration option `validation.showHiddenParams` is deprecated, please use `validation.help.showHidden` or the `--showHidden` parameter instead")
         }
         parametersSchema        = config.parametersSchema       ?: "nextflow_schema.json"
-        help                    = new HelpConfig(config.help as Map ?: [:], params, monochromeLogs)
+        help                    = new HelpConfig(config.help as Map ?: [:], params, monochromeLogs, showHiddenParams)
         summary                 = new SummaryConfig(config.summary as Map ?: [:], monochromeLogs)
 
         if(config.ignoreParams && !(config.ignoreParams instanceof List<String>)) {
