@@ -7,7 +7,7 @@ import groovy.transform.PackageScope
 /**
  * This class allows model an specific configuration, extracting values from a map and converting
  *
- * We anotate this class as @PackageScope to restrict the access of their methods only to class in the
+ * We annotate this class as @PackageScope to restrict the access of their methods only to class in the
  * same package
  *
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
@@ -49,5 +49,7 @@ class ValidationConfig {
             throw new SchemaValidationException("Config value 'validation.defaultIgnoreParams' should be a list of String values")
         }
         ignoreParams += config.defaultIgnoreParams ?: []
+        ignoreParams += 'nf_test_output' //ignore `nf_test_output` directory when using nf-test
+
     }
 }

@@ -1,5 +1,11 @@
 # nextflow-io/nf-schema: Changelog
 
+# Version 2.1.2
+
+## Bug fixes
+
+1. The directory `nf_test_output` is now an ignored parameter during validation to support use of both `nf_test` and `nf_schema`.
+
 # Version 2.1.1
 
 ## Bug fixes
