@@ -69,6 +69,7 @@ validation.showHiddenParams = <true|false> // default: false
 ## ignoreParams
 
 This option can be used to turn off the validation for certain parameters. It takes a list of parameter names as input.
+Currently, the parameter `nf_test_output` is added to `ignoreParams` by default.
 
 ```groovy
 validation.ignoreParams = ["param1", "param2"] // default: []
