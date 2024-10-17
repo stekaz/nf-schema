@@ -43,8 +43,8 @@ class UniqueEntriesEvaluator implements Evaluator {
                 .findAll { k,v -> uniqueEntries.contains(k) }
                 .collectEntries { k,v -> [k, v.asString()] }
             for (uniqueNode : uniques) {
-                if(filteredNodes.equals(uniqueNode)) {
-                    return Evaluator.Result.failure("Entry ${count}: Detected non-unique combination of the following fields: ${uniqueEntries}" as String)
+                if(filteredNodes.equals(uniqueNode) && filteredNodes != [:]) {
+                    return Evaluator.Result.failure("Entry ${count}: Detected non-unique combination of the following fields: ${filteredNodes}" as String)
                 }
             }
             uniques.add(filteredNodes)
