@@ -484,9 +484,9 @@ The combination of all values in the given keys should be unique. For this key t
 ```json
 {
   "type": "array",
+  "uniqueEntries": ["foo", "bar"],
   "items": {
     "type": "object",
-    "uniqueEntries": ["foo", "bar"],
     "properties": {
       "foo": { "type": "string" },
       "bar": { "type": "string" }
