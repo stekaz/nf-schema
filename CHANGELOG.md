@@ -6,6 +6,7 @@
 
 1. The directory `nf_test_output` is now an ignored parameter during validation to support use of both `nf_test` and `nf_schema`.
 2. `uniqueEntries` will now skip unique checks when all values in the requested array properties are empty. This had to be implemented to allow optional values to work with the `uniqueEntries` check. Partially filled in array properties will still fail (and that's how it's meant to be). Be sure to use `oneOf` to properly configure all possible combinations in case this causes some issues.
+3. Improved the error messages produced by `uniqueEntries`.
 
 ## Documentation
 
