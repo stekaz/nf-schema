@@ -996,6 +996,31 @@ class ValidateParametersTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'should not fail because of non-unique empty entries' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet_uniqueEntries.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.input = "src/testResources/samplesheet_non_unique_empty.csv"
+            include { validateParameters } from 'plugin/nf-schema'
+
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
     def 'should validate nested params - pass' () {
         given:
         def SCRIPT = """
