@@ -1,5 +1,11 @@
 # nextflow-io/nf-schema: Changelog
 
+# Version 2.2.0-dev
+
+## Bug fixes
+
+## Improvements
+
 # Version 2.1.2
 
 ## Bug fixes
