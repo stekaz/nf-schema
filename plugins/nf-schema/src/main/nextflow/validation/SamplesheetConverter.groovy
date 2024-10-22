@@ -51,6 +51,7 @@ class SamplesheetConverter {
     }
 
     private static logUnrecognisedHeaders(String fileName) {
+        log.info("HEADERS: ${this.unrecognisedHeaders}" as String)
         def Set unrecognisedHeaders = this.unrecognisedHeaders as Set
         if(unrecognisedHeaders.size() > 0) {
             def String processedHeaders = unrecognisedHeaders.collect { "\t- ${it}" }.join("\n")
@@ -95,8 +96,6 @@ class SamplesheetConverter {
             throw new SchemaValidationException(msg, validationErrors)
         }
 
-        logUnrecognisedHeaders(samplesheetFile.toString())
-
         // Convert
         def LinkedHashMap schemaMap = new JsonSlurper().parseText(schemaFile.text) as LinkedHashMap
         def List samplesheetList = Utils.fileToList(samplesheetFile, schemaFile)
@@ -115,7 +114,11 @@ class SamplesheetConverter {
             }
             return result
         }
+
+        logUnrecognisedHeaders(samplesheetFile.toString())
+
         return channelFormat
+
     }
 
     /*
