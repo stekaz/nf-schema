@@ -2,6 +2,10 @@
 
 # Version 2.2.0-dev
 
+## New features
+
+1. Added a new configuration option `failUnrecognisedHeaders`. This the is the analogue to `failUnrecognisedParams`, but for samplesheet headers. The default is `false` which means that unrecognized headers throw a warning instead of an error.
+
 ## Bug fixes
 
 1. Fixed a bug in `samplesheetToList` that caused output mixing when the function was used more than once in channel operators.

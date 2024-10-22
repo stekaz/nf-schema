@@ -54,6 +54,14 @@ By default the `validateParameters()` function will only give a warning if an un
 validation.failUnrecognisedParams = <true|false> // default: false
 ```
 
+## failUnrecognisedHeaders
+
+By default the `samplesheetToList()` function will only give a warning if an unrecognised header is present in the samplesheet. This usually indicates that a typo has been made and can be easily overlooked when the plugin only emits a warning. You can turn this warning into an error with the `failUnrecognisedHeaders` option.
+
+```groovy
+validation.failUnrecognisedHeaders = <true|false> // default: false
+```
+
 ## showHiddenParams
 
 !!! deprecated
