@@ -226,3 +226,11 @@ validation.summary.afterText = "Please cite the pipeline owners when using this 
 !!! info
 
     All color values (like `\033[0;31m`, which means the color red) will be filtered out when `validation.monochromeLogs` is set to `true`
+
+### hideParams
+
+Takes a list of parameter names to exclude from the parameters summary created by `paramsSummaryMap()` and `paramsSummaryLog()`
+
+```groovy
+validation.summary.hideParams = ["param1", "nested.param"] // default: []
+```
