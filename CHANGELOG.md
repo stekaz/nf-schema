@@ -10,6 +10,7 @@
 ## Bug fixes
 
 1. Fixed a bug in `samplesheetToList` that caused output mixing when the function was used more than once in channel operators.
+2. Added a missing depencency for email format validation.
 
 ## Improvements
 
