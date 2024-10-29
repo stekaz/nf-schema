@@ -389,7 +389,11 @@ Example usage is as follows:
 
 !!! note
 
-    If the parameter is an S3 URL path, this validation is ignored.
+    If the parameter is an S3, Azure or Google Cloud URI path, this validation is ignored.
+
+!!! warning
+
+    Make sure to only use the `exists` keyword in combination with any file path format. Using `exists` on a normal string will assume that it's a file and will probably fail unexpectedly.
 
 ### `mimetype`
 
