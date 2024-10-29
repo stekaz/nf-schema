@@ -40,7 +40,7 @@ import org.yaml.snakeyaml.Yaml
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
 
-    static final List<String> NF_OPTIONS = [
+    final List<String> NF_OPTIONS = [
             // Options for base `nextflow` command
             'bg',
             'c',
@@ -556,7 +556,7 @@ Please contact the pipeline maintainer(s) if you see this warning as a user.
     //
     // Clean and check parameters relative to Nextflow native classes
     //
-    private static Map cleanParameters(Map params) {
+    private Map cleanParameters(Map params) {
         def Map new_params = (Map) params.getClass().newInstance(params)
         for (p in params) {
             // remove anything evaluating to false

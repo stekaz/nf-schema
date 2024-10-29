@@ -22,9 +22,9 @@ import java.util.regex.Matcher
 @CompileStatic
 public class JsonSchemaValidator {
 
-    private static ValidatorFactory validator
-    private static Pattern uriPattern = Pattern.compile('^#/(\\d*)?/?(.*)$')
-    private static ValidationConfig config
+    private ValidatorFactory validator
+    private Pattern uriPattern = Pattern.compile('^#/(\\d*)?/?(.*)$')
+    private ValidationConfig config
 
     JsonSchemaValidator(ValidationConfig config) {
         this.validator = new ValidatorFactory()
@@ -34,7 +34,7 @@ public class JsonSchemaValidator {
         this.config = config
     }
 
-    private static List<String> validateObject(JsonNode input, String validationType, Object rawJson, String schemaString) {
+    private List<String> validateObject(JsonNode input, String validationType, Object rawJson, String schemaString) {
         def JSONObject schema = new JSONObject(schemaString)
         def String draft = Utils.getValueFromJson("#/\$schema", schema)
         if(draft != "https://json-schema.org/draft/2020-12/schema") {
@@ -104,12 +104,12 @@ public class JsonSchemaValidator {
         return errors
     }
 
-    public static List<String> validate(JSONArray input, String schemaString) {
+    public List<String> validate(JSONArray input, String schemaString) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
         return this.validateObject(jsonInput, "field", input, schemaString)
     }
 
-    public static List<String> validate(JSONObject input, String schemaString) {
+    public List<String> validate(JSONObject input, String schemaString) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
         return this.validateObject(jsonInput, "parameter", input, schemaString)
     }
