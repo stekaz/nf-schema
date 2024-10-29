@@ -51,7 +51,6 @@ class SamplesheetConverter {
     }
 
     private static logUnrecognisedHeaders(String fileName) {
-        log.info("HEADERS: ${this.unrecognisedHeaders}" as String)
         def Set unrecognisedHeaders = this.unrecognisedHeaders as Set
         if(unrecognisedHeaders.size() > 0) {
             def String processedHeaders = unrecognisedHeaders.collect { "\t- ${it}" }.join("\n")
