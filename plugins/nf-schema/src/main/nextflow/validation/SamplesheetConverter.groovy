@@ -19,38 +19,38 @@ import nextflow.Nextflow
 @CompileStatic
 class SamplesheetConverter {
 
-    private static ValidationConfig config
+    private ValidationConfig config
 
     SamplesheetConverter(ValidationConfig config) {
         this.config = config
     }
 
-    private static List<Map> rows = []
-    private static Map meta = [:]
+    private List<Map> rows = []
+    private Map meta = [:]
 
-    private static Map getMeta() {
+    private Map getMeta() {
         this.meta
     }
 
-    private static Map resetMeta() {
+    private Map resetMeta() {
         this.meta = [:]
     }
 
-    private static addMeta(Map newEntries) {
+    private addMeta(Map newEntries) {
         this.meta = this.meta + newEntries
     }
 
-    private static Boolean isMeta() {
+    private Boolean isMeta() {
         this.meta.size() > 0
     }
 
-    private static List unrecognisedHeaders = []
+    private List unrecognisedHeaders = []
 
-    private static addUnrecognisedHeader (String header) {
+    private addUnrecognisedHeader (String header) {
         this.unrecognisedHeaders.add(header)
     }
 
-    private static logUnrecognisedHeaders(String fileName) {
+    private logUnrecognisedHeaders(String fileName) {
         def Set unrecognisedHeaders = this.unrecognisedHeaders as Set
         if(unrecognisedHeaders.size() > 0) {
             def String processedHeaders = unrecognisedHeaders.collect { "\t- ${it}" }.join("\n")
@@ -66,7 +66,7 @@ class SamplesheetConverter {
     /*
     Convert the samplesheet to a list of entries based on a schema
     */
-    public static List validateAndConvertToList(
+    public List validateAndConvertToList(
         Path samplesheetFile,
         Path schemaFile,
         Map options
@@ -124,7 +124,7 @@ class SamplesheetConverter {
     This function processes an input value based on a schema. 
     The output will be created for addition to the output channel.
     */
-    private static Object formatEntry(Object input, LinkedHashMap schema, String headerPrefix = "") {
+    private Object formatEntry(Object input, LinkedHashMap schema, String headerPrefix = "") {
 
         // Add default values for missing entries
         input = input != null ? input : schema.containsKey("default") ? schema.default : []
@@ -172,15 +172,15 @@ class SamplesheetConverter {
 
     }
 
-    private static List validPathFormats = ["file-path", "path", "directory-path", "file-path-pattern"]
-    private static List schemaOptions = ["anyOf", "oneOf", "allOf"]
+    private List validPathFormats = ["file-path", "path", "directory-path", "file-path-pattern"]
+    private List schemaOptions = ["anyOf", "oneOf", "allOf"]
 
     /*
     This function processes a value that's not a map or list and casts it to a file type if necessary.
     When there is uncertainty if the value should be a path, some simple logic is applied that tries
     to guess if it should be a file type
     */
-    private static Object processValue(Object value, Map schemaEntry) {
+    private Object processValue(Object value, Map schemaEntry) {
         if(!(value instanceof String)) {
             return value
         }
@@ -234,7 +234,7 @@ class SamplesheetConverter {
     This function processes an input value based on a schema. 
     The output will be created for addition to the meta map.
     */
-    private static Object processMeta(Object input, LinkedHashMap schema, String headerPrefix) {
+    private Object processMeta(Object input, LinkedHashMap schema, String headerPrefix) {
         // Add default values for missing entries
         input = input != null ? input : schema.containsKey("default") ? schema.default : []
 
