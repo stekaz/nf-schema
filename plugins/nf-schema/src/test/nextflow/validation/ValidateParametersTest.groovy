@@ -1095,4 +1095,56 @@ class ValidateParametersTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'should validate an email' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.input = 'src/testResource/samplesheet.csv'
+            params.outdir = 'src/testResources/testDir'
+            params.email = "test@domain.com"
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should validate an email - failure' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.input = 'src/testResource/samplesheet.csv'
+            params.outdir = 'src/testResources/testDir'
+            params.email = "thisisnotanemail"
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message.contains("* --email (thisisnotanemail): \"thisisnotanemail\" is not a valid email address")
+        !stdout
+    }
+
 }
