@@ -14,6 +14,7 @@
 ## Improvements
 
 1. Improved the `exists` keyword documentation with a warning about an edge case.
+2. Updated the error messages. Custom error messages provided in the JSON schema will now be appended to the original error messages instead of overwriting them.
 
 # Version 2.1.2
 
