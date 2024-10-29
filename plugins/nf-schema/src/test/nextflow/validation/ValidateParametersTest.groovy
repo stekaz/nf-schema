@@ -1097,7 +1097,7 @@ class ValidateParametersTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def SCRIPT = """
-            params.input = 'src/testResource/samplesheet.csv'
+            params.input = 'src/testResources/samplesheet.csv'
             params.outdir = 'src/testResources/testDir'
             params.email = "test@domain.com"
             include { validateParameters } from 'plugin/nf-schema'
@@ -1122,7 +1122,7 @@ class ValidateParametersTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def SCRIPT = """
-            params.input = 'src/testResource/samplesheet.csv'
+            params.input = 'src/testResources/samplesheet.csv'
             params.outdir = 'src/testResources/testDir'
             params.email = "thisisnotanemail"
             include { validateParameters } from 'plugin/nf-schema'
@@ -1142,6 +1142,58 @@ class ValidateParametersTest extends Dsl2Spec{
         then:
         def error = thrown(SchemaValidationException)
         error.message.contains("* --email (thisisnotanemail): \"thisisnotanemail\" is not a valid email address")
+        !stdout
+    }
+
+    def 'should give an error when a file-path-pattern is used with a file-path format' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.input = 'src/testResources/*.csv'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message.contains("* --input (src/testResources/*.csv): 'src/testResources/*.csv' is not a file, but a file path pattern")
+        !stdout
+    }
+
+    def 'should give an error when a file-path-pattern is used with a directory-path format' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.input = 'src/testResources/samplesheet.csv'
+            params.outdir = 'src/testResources/testDi*'
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message.contains("* --outdir (src/testResources/testDi*): 'src/testResources/testDi*' is not a directory, but a file path pattern")
         !stdout
     }
 
