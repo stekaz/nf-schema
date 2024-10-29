@@ -13,6 +13,8 @@
 
 ## Improvements
 
+1. Improved the `exists` keyword documentation with a warning about an edge case.
+
 # Version 2.1.2
 
 ## Bug fixes
