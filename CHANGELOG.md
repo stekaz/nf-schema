@@ -11,6 +11,7 @@
 
 1. Fixed a bug in `samplesheetToList` that caused output mixing when the function was used more than once in channel operators.
 2. Added a missing depencency for email format validation.
+3. All path formats (with exception to `file-path-pattern`) will now give a proper error message when a `file-path-pattern` has been used.
 
 ## Improvements
 
