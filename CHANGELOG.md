@@ -1,5 +1,23 @@
 # nextflow-io/nf-schema: Changelog
 
+# Version 2.2.0 - Kitakata
+
+## New features
+
+1. Added a new configuration option `validation.failUnrecognisedHeaders`. This is the analogue to `failUnrecognisedParams`, but for samplesheet headers. The default is `false` which means that unrecognized headers throw a warning instead of an error.
+2. Added a new configuration option `validation.summary.hideParams`. This option takes a list of parameter names to hide from the parameters summary created by `paramsSummaryMap()` and `paramsSummaryLog()`
+
+## Bug fixes
+
+1. Fixed a bug in `samplesheetToList` that caused output mixing when the function was used more than once in channel operators.
+2. Added a missing depencency for email format validation.
+3. All path formats (with exception to `file-path-pattern`) will now give a proper error message when a `file-path-pattern` has been used.
+
+## Improvements
+
+1. Improved the `exists` keyword documentation with a warning about an edge case.
+2. Updated the error messages. Custom error messages provided in the JSON schema will now be appended to the original error messages instead of overwriting them.
+
 # Version 2.1.2
 
 ## Bug fixes

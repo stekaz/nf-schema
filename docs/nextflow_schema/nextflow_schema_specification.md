@@ -231,7 +231,7 @@ If validation fails, an error message is printed to the terminal, so that the en
 However, these messages are not always very clear - especially to newcomers.
 
 To improve this experience, pipeline developers can set a custom `errorMessage` for a given parameter in a the schema.
-If validation fails, this `errorMessage` is printed instead, and the raw JSON schema validation message goes to the Nextflow debug log output.
+If validation fails, this `errorMessage` is printed after the original error message to guide the pipeline users to an easier solution.
 
 For example, instead of printing:
 
@@ -252,7 +252,7 @@ We can set
 and get:
 
 ```
-* --input (samples.yml): File name must end in '.csv' cannot contain spaces
+* --input (samples.yml): "samples.yml" does not match regular expression [^\S+\.csv$] (File name must end in '.csv' cannot contain spaces)
 ```
 
 ### `deprecated`
@@ -389,7 +389,11 @@ Example usage is as follows:
 
 !!! note
 
-    If the parameter is an S3 URL path, this validation is ignored.
+    If the parameter is an S3, Azure or Google Cloud URI path, this validation is ignored.
+
+!!! warning
+
+    Make sure to only use the `exists` keyword in combination with any file path format. Using `exists` on a normal string will assume that it's a file and will probably fail unexpectedly.
 
 ### `mimetype`
 
