@@ -419,12 +419,13 @@ Please contact the pipeline maintainer(s) if you see this warning as a user.
         if (workflow.container) {
             workflowSummary['container'] = workflow.container
         }
+
         workflowSummary['launchDir']    = workflow.launchDir
         workflowSummary['workDir']      = workflow.workDir
         workflowSummary['projectDir']   = workflow.projectDir
         workflowSummary['userName']     = workflow.userName
         workflowSummary['profile']      = workflow.profile
-        workflowSummary['configFiles']  = workflow.configFiles.join(', ')
+        workflowSummary['configFiles']  = workflow.configFiles ? workflow.configFiles.join(', ') : ''
 
         // Get pipeline parameters defined in JSON Schema
         def Map paramsSummary = [:]
