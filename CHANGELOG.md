@@ -1,5 +1,11 @@
 # nextflow-io/nf-schema: Changelog
 
+# Version 2.3.0
+
+## Bug fixes
+
+1. Fixed a bug in `paramsSummaryMap()` related to the processing of workflow config files.
+
 # Version 2.2.0 - Kitakata
 
 ## New features
