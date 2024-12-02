@@ -483,6 +483,33 @@ class ValidateParametersTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'should ignore wrong expected params' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.input = 1
+            params.outdir = 2
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = ["validation": [
+            "ignoreParams": ['input'],
+            "defaultIgnoreParams": ['outdir']
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
     def 'should fail for unexpected param' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()

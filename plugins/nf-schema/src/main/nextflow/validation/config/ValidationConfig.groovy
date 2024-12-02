@@ -52,6 +52,5 @@ class ValidationConfig {
         }
         ignoreParams += config.defaultIgnoreParams ?: []
         ignoreParams += 'nf_test_output' //ignore `nf_test_output` directory when using nf-test
-
     }
 }

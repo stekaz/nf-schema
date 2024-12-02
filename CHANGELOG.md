@@ -1,10 +1,11 @@
 # nextflow-io/nf-schema: Changelog
 
-# Version 2.3.0
+# Version 2.2.1
 
 ## Bug fixes
 
 1. Fixed a bug in `paramsSummaryMap()` related to the processing of workflow config files.
+2. Fixed a bug where `validation.defaultIgnoreParams` and `validation.ignoreParams` would not actually ignore the parameter validation.
 
 # Version 2.2.0 - Kitakata
 
