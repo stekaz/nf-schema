@@ -330,8 +330,12 @@ class SchemaValidator extends PluginExtensionPoint {
         // Validate
         List<String> validationErrors = validator.validate(paramsJSON, schema_string)
         this.errors.addAll(validationErrors)
-        if (this.hasErrors()) {
-            def msg = "${colors.red}The following invalid input values have been detected:\n\n" + errors.join('\n').trim() + "\n${colors.reset}\n"
+        def List<String> modifiedIgnoreParams = config.ignoreParams.collect { param -> "* --${param}" as String }
+        def List<String> filteredErrors = errors.findAll { error -> 
+            return modifiedIgnoreParams.find { param -> error.startsWith(param) } == null
+        }
+        if (filteredErrors.size() > 0) {
+            def msg = "${colors.red}The following invalid input values have been detected:\n\n" + filteredErrors.join('\n').trim() + "\n${colors.reset}\n"
             log.error("Validation of pipeline parameters failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
