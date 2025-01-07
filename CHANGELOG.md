@@ -1,5 +1,12 @@
 # nextflow-io/nf-schema: Changelog
 
+# Version 2.3.0dev
+
+## Bug fixes
+
+1. The help message will now also be printed out when no functions of the plugin get included in the pipeline.
+2. JSON and YAML files that are not a list of values should now also be validated correctly. (Mind that samplesheets always have to be a list of values to work with `samplesheetToList`)
+
 # Version 2.2.1
 
 ## Bug fixes
