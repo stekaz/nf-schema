@@ -52,13 +52,19 @@ public class Utils {
     }
 
     // Converts a given file to a List
-    public static List fileToList(Path file, Path schema) {
+    public static Object fileToObject(Path file, Path schema) {
         def String fileType = Utils.getFileType(file)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
+        def Map schemaMap = (Map) new JsonSlurper().parse( schema )
         def Map types = variableTypes(schema)
 
-        if (types.find{ it.value == "array" } as Boolean && fileType in ["csv", "tsv"]){
-            def msg = "Using \"type\": \"array\" in schema with a \".$fileType\" samplesheet is not supported\n"
+        if (schemaMap.type == "object" && fileType in ["csv", "tsv"]) {
+            def msg = "Cannot create an object from a CSV or TSV samplesheet. Please use a JSON or YAML file instead."
+            throw new SchemaValidationException(msg, [])
+        }
+
+        if ((types.find{ it.value == "array" || it.value == "object" } as Boolean) && fileType in ["csv", "tsv"]){
+            def msg = "Using \"type\": \"array\" or \"type\": \"object\" in schema with a \".$fileType\" samplesheet is not supported\n"
             log.error("ERROR: Validation of pipeline parameters failed!")
             throw new SchemaValidationException(msg, [])
         }
@@ -82,13 +88,21 @@ public class Utils {
     }
 
     // Converts a given file to a JSONArray
-    public static JSONArray fileToJsonArray(Path file, Path schema) {
+    public static Object fileToJson(Path file, Path schema) {
         // Remove all null values from JSON object
         // and convert the groovy object to a JSONArray
         def jsonGenerator = new JsonGenerator.Options()
             .excludeNulls()
             .build()
-        return new JSONArray(jsonGenerator.toJson(fileToList(file, schema)))
+        def Object obj = fileToObject(file, schema)
+        if (obj instanceof List) {
+            return new JSONArray(jsonGenerator.toJson(obj))
+        } else if (obj instanceof Map) {
+            return new JSONObject(jsonGenerator.toJson(obj))
+        } else {
+            def msg = "Could not determine if the file is a list or map of values"
+            throw new SchemaValidationException(msg, [])
+        }
     }
 
     //
@@ -141,7 +155,7 @@ public class Utils {
         def Map parsed = (Map) slurper.parse( schema )
 
         // Obtain the type of each variable in the schema
-        def Map properties = (Map) parsed['items']['properties']
+        def Map properties = (Map) parsed['items'] ? parsed['items']['properties'] : parsed["properties"]
         for (p in properties) {
             def String key = (String) p.key
             def Map property = properties[key] as Map
