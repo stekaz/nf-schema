@@ -73,7 +73,7 @@ public class Utils {
             return new Yaml().load((file.text))
         }
         else if(fileType == "json"){
-            return new JsonSlurper().parseText(file.text) as List
+            return new JsonSlurper().parseText(file.text)
         }
         else {
             def Boolean header = getValueFromJson("#/items/properties", new JSONObject(schema.text)) ? true : false
