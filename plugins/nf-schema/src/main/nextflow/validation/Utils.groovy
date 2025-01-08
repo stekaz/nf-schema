@@ -59,7 +59,7 @@ public class Utils {
         def Map types = variableTypes(schema)
 
         if (schemaMap.type == "object" && fileType in ["csv", "tsv"]) {
-            def msg = "Cannot create an object from a CSV or TSV samplesheet. Please use a JSON or YAML file instead."
+            def msg = "CSV or TSV files are not supported. Use a JSON or YAML file instead of ${file.toString()}. (Expected a non-list data structure, which is not supported in CSV or TSV)"
             throw new SchemaValidationException(msg, [])
         }
 
