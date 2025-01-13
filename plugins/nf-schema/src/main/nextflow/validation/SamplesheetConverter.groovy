@@ -80,6 +80,13 @@ class SamplesheetConverter {
             throw new SchemaValidationException(msg)
         }
 
+        def LinkedHashMap schemaMap = new JsonSlurper().parseText(schemaFile.text) as LinkedHashMap
+        def List<String> schemaKeys = schemaMap.keySet() as List<String>
+        if(schemaKeys.contains("properties") || !schemaKeys.contains("items")) {
+            def msg = "${colors.red}The schema for '${samplesheetFile.toString()}' (${schemaFile.toString()}) is not valid. Please make sure that 'items' is the top level keyword and not 'properties'\n${colors.reset}\n"
+            throw new SchemaValidationException(msg)
+        }
+
         if(!samplesheetFile.exists()) {
             def msg = "${colors.red}Samplesheet file ${samplesheetFile.toString()} does not exist\n${colors.reset}\n"
             throw new SchemaValidationException(msg)
@@ -87,7 +94,7 @@ class SamplesheetConverter {
 
         // Validate
         final validator = new JsonSchemaValidator(config)
-        def JSONArray samplesheet = Utils.fileToJsonArray(samplesheetFile, schemaFile)
+        def JSONArray samplesheet = Utils.fileToJson(samplesheetFile, schemaFile) as JSONArray
         def List<String> validationErrors = validator.validate(samplesheet, schemaFile.text)
         if (validationErrors) {
             def msg = "${colors.red}The following errors have been detected in ${samplesheetFile.toString()}:\n\n" + validationErrors.join('\n').trim() + "\n${colors.reset}\n"
@@ -96,8 +103,7 @@ class SamplesheetConverter {
         }
 
         // Convert
-        def LinkedHashMap schemaMap = new JsonSlurper().parseText(schemaFile.text) as LinkedHashMap
-        def List samplesheetList = Utils.fileToList(samplesheetFile, schemaFile)
+        def List samplesheetList = Utils.fileToObject(samplesheetFile, schemaFile) as List
 
         this.rows = []
 

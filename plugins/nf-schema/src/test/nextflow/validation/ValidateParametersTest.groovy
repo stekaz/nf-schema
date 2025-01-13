@@ -1224,4 +1224,102 @@ class ValidateParametersTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'should validate a map file - yaml' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_map_file.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.map_file = 'src/testResources/map_file.yaml'
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should validate a map file - json' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_map_file.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.map_file = 'src/testResources/map_file.json'
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should give an error when a map file is wrong - yaml' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_map_file.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.map_file = 'src/testResources/map_file_wrong.yaml'
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message.contains("* --map_file (src/testResources/map_file_wrong.yaml): Validation of file failed:")
+        error.message.contains("	* --this.is.deep (hello): Value is [string] but should be [integer]")
+        !stdout
+    }
+
+    def 'should give an error when a map file is wrong - json' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_map_file.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.map_file = 'src/testResources/map_file_wrong.json'
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message.contains("* --map_file (src/testResources/map_file_wrong.json): Validation of file failed:")
+        error.message.contains("	* --this.is.deep (hello): Value is [string] but should be [integer]")
+        !stdout
+    }
+
 }
