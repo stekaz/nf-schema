@@ -1,6 +1,6 @@
 # nextflow-io/nf-schema: Changelog
 
-# Version 2.3.0dev
+# Version 2.3.0 - Hakodate
 
 ## Bug fixes
 
