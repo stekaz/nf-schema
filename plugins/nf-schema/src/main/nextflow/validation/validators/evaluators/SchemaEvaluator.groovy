@@ -1,16 +1,18 @@
-package nextflow.validation
+package nextflow.validation.validators.evaluators
 
 import dev.harrel.jsonschema.Evaluator
 import dev.harrel.jsonschema.EvaluationContext
 import dev.harrel.jsonschema.JsonNode
 import nextflow.Nextflow
-import nextflow.Global
-import org.json.JSONArray
-import org.json.JSONObject
 
 import groovy.util.logging.Slf4j
 import java.nio.file.Path
 import java.nio.file.Files
+
+import static nextflow.validation.utils.Common.getBasePath
+import static nextflow.validation.utils.Files.fileToJson
+import nextflow.validation.config.ValidationConfig
+import nextflow.validation.validators.JsonSchemaValidator
 
 /**
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
@@ -49,8 +51,8 @@ class SchemaEvaluator implements Evaluator {
 
         log.debug("Started validating ${file.toString()}")
 
-        def String schemaFull = Utils.getSchemaPath(this.baseDir, this.schema)
-        def Object json = Utils.fileToJson(file, Path.of(schemaFull))
+        def String schemaFull = getBasePath(this.baseDir, this.schema)
+        def Object json = fileToJson(file, Path.of(schemaFull))
         def String schemaContents = Files.readString( Path.of(schemaFull) )
         def validator = new JsonSchemaValidator(config)
 

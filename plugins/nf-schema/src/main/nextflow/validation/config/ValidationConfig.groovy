@@ -1,21 +1,17 @@
-package nextflow.validation
+package nextflow.validation.config
 
 import groovy.util.logging.Slf4j
-import groovy.transform.PackageScope
 
+import nextflow.validation.exceptions.SchemaValidationException
 
 /**
  * This class allows model an specific configuration, extracting values from a map and converting
- *
- * We annotate this class as @PackageScope to restrict the access of their methods only to class in the
- * same package
  *
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
  *
  */
 
 @Slf4j
-@PackageScope
 class ValidationConfig {
 
     final public Boolean lenientMode

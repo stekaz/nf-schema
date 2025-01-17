@@ -1,21 +1,16 @@
-package nextflow.validation
+package nextflow.validation.config
 
 import groovy.util.logging.Slf4j
-import groovy.transform.PackageScope
 
-
+import static nextflow.validation.utils.Colors.removeColors
 /**
  * This class allows to model a specific configuration, extracting values from a map and converting
- *
- * We anotate this class as @PackageScope to restrict the access of their methods only to class in the
- * same package
  *
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
  *
  */
 
 @Slf4j
-@PackageScope
 class HelpConfig {
     final public Boolean enabled
     final public String  shortParameter
@@ -33,9 +28,9 @@ class HelpConfig {
         fullParameter       = config.fullParameter              ?: "helpFull"
         showHiddenParameter = config.showHiddenParameter        ?: "showHidden"
         if (monochromeLogs) {
-            beforeText  = config.beforeText ? Utils.removeColors(config.beforeText): ""
-            afterText   = config.afterText  ? Utils.removeColors(config.afterText) : ""
-            command     = config.command    ? Utils.removeColors(config.command)   : ""
+            beforeText  = config.beforeText ? removeColors(config.beforeText): ""
+            afterText   = config.afterText  ? removeColors(config.afterText) : ""
+            command     = config.command    ? removeColors(config.command)   : ""
         } else {
             beforeText  = config.beforeText ?: ""
             afterText   = config.afterText  ?: ""

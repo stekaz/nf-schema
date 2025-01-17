@@ -13,6 +13,8 @@ import test.Dsl2Spec
 import test.OutputCapture
 import test.MockScriptRunner
 
+import nextflow.validation.exceptions.SchemaValidationException
+
 /**
  * @author : mirpedrol <mirp.julia@gmail.com>
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
@@ -357,7 +359,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
                 .toString()
                 .readLines()
                 .collect {
-                    it.split("nextflow.validation.SamplesheetConverter -- ")[-1]
+                    it.split("SamplesheetConverter -- ")[-1]
                 }
 
         then:

@@ -1,4 +1,4 @@
-package nextflow.validation
+package nextflow.validation.help
 
 import groovy.util.logging.Slf4j
 
@@ -7,8 +7,11 @@ import nextflow.trace.TraceObserver
 import nextflow.trace.TraceRecord
 import nextflow.Session
 
+import nextflow.validation.help.HelpMessageCreator
+import nextflow.validation.config.ValidationConfig
+
 @Slf4j
-class ValidationObserver implements TraceObserver {
+class HelpObserver implements TraceObserver {
     
     @Override
     void onFlowCreate(Session session) {
@@ -19,17 +22,17 @@ class ValidationObserver implements TraceObserver {
         def Boolean containsShortParameter = params.containsKey(config.help.shortParameter) && params[config.help.shortParameter]
         if (config.help.enabled && (containsFullParameter || containsShortParameter)) {
             def String help = ""
-            def HelpMessage helpMessage = new HelpMessage(config, session)
-            help += helpMessage.getBeforeText()
+            def HelpMessageCreator helpCreator = new HelpMessageCreator(config, session)
+            help += helpCreator.getBeforeText()
             if (containsFullParameter) {
                 log.debug("Printing out the full help message")
-                help += helpMessage.getFullHelpMessage()
+                help += helpCreator.getFullMessage()
             } else if (containsShortParameter) {
                 log.debug("Printing out the short help message")
                 def paramValue = params.get(config.help.shortParameter)
-                help += helpMessage.getShortHelpMessage(paramValue instanceof String ? paramValue : "")
+                help += helpCreator.getShortMessage(paramValue instanceof String ? paramValue : "")
             }
-            help += helpMessage.getAfterText()
+            help += helpCreator.getAfterText()
             log.info(help)
             System.exit(0)
         }

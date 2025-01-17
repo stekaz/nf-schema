@@ -1,4 +1,4 @@
-package nextflow.validation
+package nextflow.validation.validators.evaluators
 
 import nextflow.Global
 import nextflow.Session
@@ -6,6 +6,8 @@ import dev.harrel.jsonschema.EvaluatorFactory
 import dev.harrel.jsonschema.Evaluator
 import dev.harrel.jsonschema.SchemaParsingContext
 import dev.harrel.jsonschema.JsonNode
+
+import nextflow.validation.config.ValidationConfig
 
 /**
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
