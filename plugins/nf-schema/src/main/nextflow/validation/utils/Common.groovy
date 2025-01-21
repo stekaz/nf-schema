@@ -60,7 +60,24 @@ public class Common {
     // Find a value in a nested map
     //
     public static Object findDeep(Map m, String key) {
-        if (m.containsKey(key)) return m[key]
-        m.findResult { k, v -> v instanceof Map ? findDeep(v, key) : null }
+        if (m instanceof Map) {
+            if (m.containsKey(key)) {
+                return m[key]
+            } else {
+                return m.findResult { k, v -> v instanceof Map ? findDeep(v, key) : null }
+            }
+        } 
+        else if (m instanceof List) {
+            def result = null
+            m.each {
+                def res = findDeep(it)
+                if (res != null) {
+                    result = res
+                    return
+                }
+            }
+            return result
+        }
+        return null
     }
 }
