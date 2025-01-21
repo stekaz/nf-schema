@@ -37,4 +37,6 @@ class ValidationObserver implements TraceObserver {
             """)
         }
     }
+
+    void onWorkflowPublish(Object input) {}
 }
