@@ -64,18 +64,12 @@ public class Common {
             if (m.containsKey(key)) {
                 return m[key]
             } else {
-                return m.findResult { k, v -> v instanceof Map ? findDeep(v, key) : null }
+                return m.findResult { k, v -> findDeep(v, key) }
             }
         } 
         else if (m instanceof List) {
             def result = null
-            m.each {
-                def res = findDeep(it)
-                if (res != null) {
-                    result = res
-                    return
-                }
-            }
+            return m.findResult { element -> findDeep(element, key) }
             return result
         }
         return null
