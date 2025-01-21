@@ -59,7 +59,7 @@ public class Common {
     //
     // Find a value in a nested map
     //
-    public static Object findDeep(Map m, String key) {
+    public static Object findDeep(Object m, String key) {
         if (m instanceof Map) {
             if (m.containsKey(key)) {
                 return m[key]
