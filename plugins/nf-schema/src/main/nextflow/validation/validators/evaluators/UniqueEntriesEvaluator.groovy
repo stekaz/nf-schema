@@ -34,10 +34,10 @@ class UniqueEntriesEvaluator implements Evaluator {
             if(!nodeEntry.isObject()) {
                 return Evaluator.Result.success()
             }
-            def List filteredNodes = nodeEntry.asObject().subMap(uniqueEntries).collect{k, v -> v.asString()}
-            def Tuple nodeTup = filteredNodes ? Tuple.tuple(*filteredNodes) : Tuple.tuple()
+            def Map filteredNodes = nodeEntry.asObject().subMap(uniqueEntries)
+            def Tuple nodeTup = filteredNodes ? Tuple.tuple(*filteredNodes.collect{k, v -> "${k}:${v.asString()}"}) : Tuple.tuple()
             if(nodeTup && nodeTup in uniques) {
-                return Evaluator.Result.failure("Entry ${count}: Detected duplicate entries: ${filteredNodes}" as String)
+                return Evaluator.Result.failure("Entry ${count}: Detected duplicate entries: ${nodeTup}" as String)
             }
             uniques << nodeTup
         }
