@@ -7,6 +7,10 @@
 1. Move the unpinned version check to an observer. This makes sure the warning is always shown and not only when importing a function.
 2. Added a missing inherited method to the observer to fix issues with workflow output publishing
 
+## Improvements
+
+1. Slow uniqueness check (> 2hrs for 100k samples) made 400x faster by switching from `findAll` to a `subMap` for isolating the required unique fields.
+
 ## Changes
 
 1. Refactored the whole codebase to make future development easier

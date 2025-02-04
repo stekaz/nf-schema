@@ -27,23 +27,19 @@ class UniqueEntriesEvaluator implements Evaluator {
             return Evaluator.Result.success()
         }
 
-        def List<Map<String,JsonNode>> uniques = []
+        def Set<Tuple> uniques = []
         def Integer count = 0
         for(nodeEntry : node.asArray()) {
             count++
             if(!nodeEntry.isObject()) {
                 return Evaluator.Result.success()
             }
-            def Map<String,JsonNode> filteredNodes = nodeEntry
-                .asObject()
-                .findAll { k,v -> uniqueEntries.contains(k) }
-                .collectEntries { k,v -> [k, v.asString()] }
-            for (uniqueNode : uniques) {
-                if(filteredNodes.equals(uniqueNode) && filteredNodes != [:]) {
-                    return Evaluator.Result.failure("Entry ${count}: Detected duplicate entries: ${filteredNodes}" as String)
-                }
+            def Map filteredNodes = nodeEntry.asObject().subMap(uniqueEntries)
+            def Tuple nodeTup = filteredNodes ? Tuple.tuple(*filteredNodes.collect{k, v -> "${k}:${v.asString()}"}) : Tuple.tuple()
+            if(nodeTup && nodeTup in uniques) {
+                return Evaluator.Result.failure("Entry ${count}: Detected duplicate entries: ${nodeTup}" as String)
             }
-            uniques.add(filteredNodes)
+            uniques << nodeTup
         }
 
         return Evaluator.Result.success()
