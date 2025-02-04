@@ -1017,7 +1017,7 @@ class ValidateParametersTest extends Dsl2Spec{
         error.message == '''The following invalid input values have been detected:
 
 * --input (src/testResources/samplesheet_non_unique.csv): Validation of file failed:
-	-> Entry 3: Detected duplicate entries: [fastq_1:test2_fastq1.fastq.gz, sample:test_2]
+	-> Entry 3: Detected duplicate entries: [sample:test_2, fastq_1:test2_fastq1.fastq.gz]
 
 '''
         !stdout
