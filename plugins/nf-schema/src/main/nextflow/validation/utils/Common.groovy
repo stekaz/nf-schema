@@ -68,9 +68,7 @@ public class Common {
             }
         } 
         else if (m instanceof List) {
-            def result = null
             return m.findResult { element -> findDeep(element, key) }
-            return result
         }
         return null
     }
