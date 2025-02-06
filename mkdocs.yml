@@ -69,6 +69,7 @@ extra_css:
 
 markdown_extensions:
   - admonition
+  - attr_list
   - def_list
   - md_in_html
   - pymdownx.emoji:
