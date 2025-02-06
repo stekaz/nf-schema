@@ -6,6 +6,7 @@
 
 1. Move the unpinned version check to an observer. This makes sure the warning is always shown and not only when importing a function.
 2. Added a missing inherited method to the observer to fix issues with workflow output publishing
+3. Fixed unexpected failures with samplesheet schemas using `anyOf`, `allOf` and `oneOf`
 
 ## Improvements
 

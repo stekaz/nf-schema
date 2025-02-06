@@ -608,4 +608,28 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("second: [[array_meta:[]], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${getRootString()}/src/testResources/testDir/testFile.txt], [[${getRootString()}/src/testResources/testDir/testFile.txt], [${getRootString()}/src/testResources/testDir/testFile.txt, ${getRootString()}/src/testResources/testDir2/testFile2.txt]]]" as String)
 
     }
+
+    def 'samplesheetToList - nested schema with oneOf/anyOf/allOf' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            workflow {
+                Channel.fromList(samplesheetToList("src/testResources/deeply_nested.yaml", "src/testResources/samplesheet_schema_deeply_nested_anyof.json")).view()       
+            }
+
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[mapMeta:this is in a map, arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
+
+    }
 }

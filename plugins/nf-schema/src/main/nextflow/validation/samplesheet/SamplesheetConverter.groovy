@@ -11,6 +11,7 @@ import nextflow.Nextflow
 import static nextflow.validation.utils.Colors.getLogColors
 import static nextflow.validation.utils.Files.fileToJson
 import static nextflow.validation.utils.Files.fileToObject
+import static nextflow.validation.utils.Common.findDeep
 import nextflow.validation.config.ValidationConfig
 import nextflow.validation.exceptions.SchemaValidationException
 import nextflow.validation.validators.JsonSchemaValidator
@@ -85,7 +86,7 @@ class SamplesheetConverter {
             throw new SchemaValidationException(msg)
         }
 
-        def LinkedHashMap schemaMap = new JsonSlurper().parseText(schemaFile.text) as LinkedHashMap
+        def Map schemaMap = new JsonSlurper().parseText(schemaFile.text) as Map
         def List<String> schemaKeys = schemaMap.keySet() as List<String>
         if(schemaKeys.contains("properties") || !schemaKeys.contains("items")) {
             def msg = "${colors.red}The schema for '${samplesheetFile.toString()}' (${schemaFile.toString()}) is not valid. Please make sure that 'items' is the top level keyword and not 'properties'\n${colors.reset}\n"
@@ -109,12 +110,11 @@ class SamplesheetConverter {
 
         // Convert
         def List samplesheetList = fileToObject(samplesheetFile, schemaFile) as List
-
         this.rows = []
 
         def List channelFormat = samplesheetList.collect { entry ->
             resetMeta()
-            def Object result = formatEntry(entry, schemaMap["items"] as LinkedHashMap)
+            def Object result = formatEntry(entry, schemaMap["items"] as Map)
             if(isMeta()) {
                 if(result instanceof List) {
                     result.add(0,getMeta())
@@ -135,14 +135,14 @@ class SamplesheetConverter {
     This function processes an input value based on a schema. 
     The output will be created for addition to the output channel.
     */
-    private Object formatEntry(Object input, LinkedHashMap schema, String headerPrefix = "") {
+    private Object formatEntry(Object input, Map schema, String headerPrefix = "") {
 
         // Add default values for missing entries
-        input = input != null ? input : schema.containsKey("default") ? schema.default : []
+        input = input != null ? input : findDeep(schema, "default") != null ? findDeep(schema, "default") : []
 
         if (input instanceof Map) {
             def List result = []
-            def Map properties = schema["properties"] as Map
+            def Map properties = findDeep(schema, "properties") as Map
             def Set unusedKeys = input.keySet() - properties.keySet()
             
             // Check for properties in the samplesheet that have not been defined in the schema
@@ -157,12 +157,12 @@ class SamplesheetConverter {
                 // Add the value to the meta map if needed
                 if (metaIds) {
                     metaIds.each {
-                        meta["${it}"] = processMeta(value, schemaValues as LinkedHashMap, prefix)
+                        meta["${it}"] = processMeta(value, schemaValues as Map, prefix)
                     }
                 } 
                 // return the correctly casted value
                 else {
-                    result.add(formatEntry(value, schemaValues as LinkedHashMap, prefix))
+                    result.add(formatEntry(value, schemaValues as Map, prefix))
                 }
             }
             return result
@@ -172,7 +172,7 @@ class SamplesheetConverter {
             input.each {
                 // return the correctly casted value
                 def String prefix = headerPrefix ? "${headerPrefix}${count}." : "${count}."
-                result.add(formatEntry(it, schema["items"] as LinkedHashMap, prefix))
+                result.add(formatEntry(it, findDeep(schema, "items") as Map, prefix))
                 count++
             }
             return result
@@ -192,7 +192,7 @@ class SamplesheetConverter {
     to guess if it should be a file type
     */
     private Object processValue(Object value, Map schemaEntry) {
-        if(!(value instanceof String)) {
+        if(!(value instanceof String) || schemaEntry == null) {
             return value
         }
 
@@ -245,13 +245,13 @@ class SamplesheetConverter {
     This function processes an input value based on a schema. 
     The output will be created for addition to the meta map.
     */
-    private Object processMeta(Object input, LinkedHashMap schema, String headerPrefix) {
+    private Object processMeta(Object input, Map schema, String headerPrefix) {
         // Add default values for missing entries
-        input = input != null ? input : schema.containsKey("default") ? schema.default : []
+        input = input != null ? input : findDeep(schema, "default") != null ? findDeep(schema, "default") : []
 
         if (input instanceof Map) {
             def Map result = [:]
-            def Map properties = schema["properties"] as Map
+            def Map properties = findDeep(schema, "properties") as Map
             def Set unusedKeys = input.keySet() - properties.keySet()
             
             // Check for properties in the samplesheet that have not been defined in the schema
@@ -261,7 +261,7 @@ class SamplesheetConverter {
             properties.each { property, schemaValues ->
                 def value = input[property]
                 def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
-                result[property] = processMeta(value, schemaValues as LinkedHashMap, prefix)
+                result[property] = processMeta(value, schemaValues as Map, prefix)
             }
             return result
         } else if (input instanceof List) {
@@ -270,7 +270,7 @@ class SamplesheetConverter {
             input.each {
                 // return the correctly casted value
                 def String prefix = headerPrefix ? "${headerPrefix}${count}." : "${count}."
-                result.add(processMeta(it, schema["items"] as LinkedHashMap, prefix))
+                result.add(processMeta(it, findDeep(schema, "items") as Map, prefix))
                 count++
             }
             return result
