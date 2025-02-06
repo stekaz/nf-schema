@@ -5,12 +5,11 @@ site_url: https://nextflow-io.github.io/nf-schema/latest/
 edit_uri: edit/master/docs/
 
 nav:
-  - Home:
-      - index.md
+  - Home: index.md
+  - Introduction:
       - background.md
       - migration_guide.md
-  - Schema:
-      - nextflow_schema/index.md
+      - Schema: nextflow_schema/index.md
       - nextflow_schema/create_schema.md
       - nextflow_schema/nextflow_schema_specification.md
       - nextflow_schema/sample_sheet_schema_specification.md
