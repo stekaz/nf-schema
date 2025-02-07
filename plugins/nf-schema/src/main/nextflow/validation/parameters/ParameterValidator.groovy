@@ -15,6 +15,7 @@ import nextflow.validation.exceptions.SchemaValidationException
 import nextflow.validation.validators.JsonSchemaValidator
 import static nextflow.validation.utils.Colors.getLogColors
 import static nextflow.validation.utils.Common.getBasePath
+import static nextflow.validation.utils.Common.getValueFromJsonPointer
 
 /**
  * @author : mirpedrol <mirp.julia@gmail.com>
@@ -132,63 +133,38 @@ class ParameterValidator {
         def paramsJSON = new JSONObject(new JsonBuilder(cleanedParams).toString())
 
         //=====================================================================//
-        // Check for nextflow core params and unexpected params
-        def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getBasePath(baseDir, schemaFilename)) )
-        // $defs is the adviced keyword for definitions. Keeping defs in for backwards compatibility
-        def Map schemaParams = (Map) (parsed.get('$defs') ?: parsed.get("defs"))
-        def specifiedParamKeys = params.keySet()
-
-        // Collect expected parameters from the schema
-        def enumsTuple = collectEnums(schemaParams)
-        def List expectedParams = (List) enumsTuple[0] + getExpectedParams()
-        def Map enums = (Map) enumsTuple[1]
-        // Collect expected parameters from the schema when parameters are specified outside of "$defs"
-        if (parsed.containsKey('properties')) {
-            def enumsTupleTopLevel = collectEnums(['top_level': ['properties': parsed.get('properties')]])
-            expectedParams += (List) enumsTupleTopLevel[0]
-            enums += (Map) enumsTupleTopLevel[1]
-        }
-
-        //=====================================================================//
-        for (String specifiedParam in specifiedParamKeys) {
-            // nextflow params
-            if (NF_OPTIONS.contains(specifiedParam)) {
-                errors << "You used a core Nextflow option with two hyphens: '--${specifiedParam}'. Please resubmit with '-${specifiedParam}'".toString()
-            }
-            // unexpected params
-            def expectedParamsLowerCase = expectedParams.collect{ it -> 
-                def String p = it
-                p.replace("-", "").toLowerCase() 
-            }
-            def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
-            def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
-            if (!expectedParams.contains(specifiedParam) && !config.ignoreParams.contains(specifiedParam) && !isCamelCaseBug) {
-                if (config.failUnrecognisedParams) {
-                    errors << "* --${specifiedParam}: ${params[specifiedParam]}".toString()
-                } else {
-                    warnings << "* --${specifiedParam}: ${params[specifiedParam]}".toString()
-                }
-            }
-        }
-
-        //=====================================================================//
         // Validate parameters against the schema
         def String schema_string = Files.readString( Path.of(getBasePath(baseDir, schemaFilename)) )
         def validator = new JsonSchemaValidator(config)
 
+        // Colors
+        def colors = getLogColors(config.monochromeLogs)
+
+        // Validate
+        Tuple2<List<String>,List<String>> validationResult = validator.validate(paramsJSON, schema_string)
+        def validationErrors = validationResult[0]
+        def unevaluatedParams = validationResult[1]
+        this.errors.addAll(validationErrors)
+
+        //=====================================================================//
+        // Check for nextflow core params and unexpected params
+        //=====================================================================//
+        unevaluatedParams.each{ param ->
+            if (NF_OPTIONS.contains(param)) {
+                errors << "You used a core Nextflow option with two hyphens: '--${param}'. Please resubmit with '-${param}'".toString()
+            }
+            else if (config.failUnrecognisedParams && !config.ignoreParams.contains(param)) {
+                errors << "* --${param.replaceAll("/", ".")}: ${getValueFromJsonPointer("/"+param, paramsJSON)}".toString()
+            } else if (!config.ignoreParams.contains(param)) {
+                warnings << "* --${param.replaceAll("/", ".")}: ${getValueFromJsonPointer("/"+param, paramsJSON)}".toString()
+            }
+        }
         // check for warnings
         if( this.hasWarnings() ) {
             def msg = "The following invalid input values have been detected:\n\n" + this.getWarnings().join('\n').trim() + "\n\n"
             log.warn(msg)
         }
 
-        // Colors
-        def colors = getLogColors(config.monochromeLogs)
-
-        // Validate
-        List<String> validationErrors = validator.validate(paramsJSON, schema_string)
-        this.errors.addAll(validationErrors)
         def List<String> modifiedIgnoreParams = config.ignoreParams.collect { param -> "* --${param}" as String }
         def List<String> filteredErrors = errors.findAll { error -> 
             return modifiedIgnoreParams.find { param -> error.startsWith(param) } == null

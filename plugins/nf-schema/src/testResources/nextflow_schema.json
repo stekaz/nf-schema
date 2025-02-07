@@ -245,6 +245,12 @@
                     "hidden": true,
                     "fa_icon": "fas fa-bacon"
                 }
+            },
+            "patternProperties": {
+                "^pattern_[a-z]+$": {
+                    "type": "string",
+                    "description": "A pattern property parameter"
+                }
             }
         }
     },
