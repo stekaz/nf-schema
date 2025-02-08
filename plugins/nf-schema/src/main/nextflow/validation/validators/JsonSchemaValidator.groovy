@@ -15,6 +15,7 @@ import java.util.regex.Matcher
 
 import static nextflow.validation.utils.Common.getValueFromJsonPointer
 import static nextflow.validation.utils.Common.findAllKeys
+import static nextflow.validation.utils.Common.kebabToCamel
 import static nextflow.validation.utils.Types.isInteger
 import nextflow.validation.config.ValidationConfig
 import nextflow.validation.exceptions.SchemaValidationException
@@ -120,7 +121,7 @@ public class JsonSchemaValidator {
     }
 
     public static List<String> getUnevaluated(Validator.Result result, Object rawJson) {
-        def List<String> evaluated = []
+        def Set<String> evaluated = []
         result.getAnnotations().each{ anno ->
             if(anno.keyword in ["properties", "patternProperties", "additionalProperties"]){
                 evaluated.addAll(
@@ -130,8 +131,10 @@ public class JsonSchemaValidator {
                 )
             }
         }
-        def List<String> all_keys = []
+        def Set<String> all_keys = []
         findAllKeys(rawJson, null, all_keys, '/')
-        return all_keys.findAll{ it -> !evaluated.contains(it) }
+        def unevaluated_ = all_keys - evaluated
+        def unevaluated = unevaluated_.collect{ it -> !evaluated.contains(kebabToCamel(it)) ? it : null }
+        return unevaluated - null
     }
 }

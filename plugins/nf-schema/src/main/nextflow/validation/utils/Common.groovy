@@ -76,7 +76,7 @@ public class Common {
         return null
     }
 
-    public static void findAllKeys(Object object, String key, List<String> finalKeys, String sep) {
+    public static void findAllKeys(Object object, String key, Set<String> finalKeys, String sep) {
         if (object instanceof JSONObject) {
             JSONObject jsonObject = (JSONObject) object;
 
@@ -85,14 +85,17 @@ public class Common {
             };
         } else if (object instanceof JSONArray) {
             JSONArray jsonArray = (JSONArray) object;
-            finalKeys.add(key);
+            key != null ? finalKeys.add(key) : ''
 
             IntStream.range(0, jsonArray.length())
                     .mapToObj(jsonArray::get)
                     .forEach{ jObj -> findAllKeys(jObj, key, finalKeys, sep)};
         }
         else{
-            finalKeys.add(key);
+            key != null ? finalKeys.add(key) : ''
         }
+    }
+    public static String kebabToCamel(String s) {
+        return s.replaceAll( "(-)([A-Za-z0-9])", { Object[] it -> it[2].toUpperCase() } )
     }
 }
