@@ -1,9 +1,12 @@
 package nextflow.validation.utils
 
+import org.json.JSONObject
+import org.json.JSONArray
 import org.json.JSONPointer
 import org.json.JSONPointerException
 import groovy.util.logging.Slf4j
 import java.nio.file.Path
+import java.util.stream.IntStream
 
 /**
  * A collection of commonly used functions
@@ -71,5 +74,28 @@ public class Common {
             return m.findResult { element -> findDeep(element, key) }
         }
         return null
+    }
+
+    public static void findAllKeys(Object object, String key, Set<String> finalKeys, String sep) {
+        if (object instanceof JSONObject) {
+            JSONObject jsonObject = (JSONObject) object;
+
+            jsonObject.keySet().forEach{ childKey ->
+                findAllKeys(jsonObject.get(childKey), key != null ? key + sep + childKey : childKey, finalKeys, sep)
+            };
+        } else if (object instanceof JSONArray) {
+            JSONArray jsonArray = (JSONArray) object;
+            key != null ? finalKeys.add(key) : ''
+
+            IntStream.range(0, jsonArray.length())
+                    .mapToObj(jsonArray::get)
+                    .forEach{ jObj -> findAllKeys(jObj, key, finalKeys, sep)};
+        }
+        else{
+            key != null ? finalKeys.add(key) : ''
+        }
+    }
+    public static String kebabToCamel(String s) {
+        return s.replaceAll( "(-)([A-Za-z0-9])", { Object[] it -> it[2].toUpperCase() } )
     }
 }

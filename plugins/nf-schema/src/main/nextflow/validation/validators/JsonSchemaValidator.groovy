@@ -14,6 +14,8 @@ import java.util.regex.Pattern
 import java.util.regex.Matcher
 
 import static nextflow.validation.utils.Common.getValueFromJsonPointer
+import static nextflow.validation.utils.Common.findAllKeys
+import static nextflow.validation.utils.Common.kebabToCamel
 import static nextflow.validation.utils.Types.isInteger
 import nextflow.validation.config.ValidationConfig
 import nextflow.validation.exceptions.SchemaValidationException
@@ -38,7 +40,7 @@ public class JsonSchemaValidator {
         this.config = config
     }
 
-    private List<String> validateObject(JsonNode input, String validationType, Object rawJson, String schemaString) {
+    private Tuple2<List<String>,List<String>> validateObject(JsonNode input, String validationType, Object rawJson, String schemaString) {
         def JSONObject schema = new JSONObject(schemaString)
         def String draft = getValueFromJsonPointer("#/\$schema", schema)
         if(draft != "https://json-schema.org/draft/2020-12/schema") {
@@ -104,16 +106,35 @@ public class JsonSchemaValidator {
             errors.add(printableError)
 
         }
-        return errors
+        def List<String> unevaluated = getUnevaluated(result, rawJson)
+        return Tuple.tuple(errors, unevaluated)
     }
 
-    public List<String> validate(JSONArray input, String schemaString) {
+    public Tuple2<List<String>,List<String>> validate(JSONArray input, String schemaString) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
         return this.validateObject(jsonInput, "field", input, schemaString)
     }
 
-    public List<String> validate(JSONObject input, String schemaString) {
+    public Tuple2<List<String>,List<String>> validate(JSONObject input, String schemaString) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
         return this.validateObject(jsonInput, "parameter", input, schemaString)
+    }
+
+    public static List<String> getUnevaluated(Validator.Result result, Object rawJson) {
+        def Set<String> evaluated = []
+        result.getAnnotations().each{ anno ->
+            if(anno.keyword in ["properties", "patternProperties", "additionalProperties"]){
+                evaluated.addAll(
+                    anno.annotation.collect{ it ->
+                    "${anno.instanceLocation.toString()}/${it.toString()}".replaceAll("^/+", "")
+                    }
+                )
+            }
+        }
+        def Set<String> all_keys = []
+        findAllKeys(rawJson, null, all_keys, '/')
+        def unevaluated_ = all_keys - evaluated
+        def unevaluated = unevaluated_.collect{ it -> !evaluated.contains(kebabToCamel(it)) ? it : null }
+        return unevaluated - null
     }
 }

@@ -101,7 +101,8 @@ class SamplesheetConverter {
         // Validate
         final validator = new JsonSchemaValidator(config)
         def JSONArray samplesheet = fileToJson(samplesheetFile, schemaFile) as JSONArray
-        def List<String> validationErrors = validator.validate(samplesheet, schemaFile.text)
+        def Tuple2<List<String>,List<String>> validationResults = validator.validate(samplesheet, schemaFile.text)
+        def validationErrors = validationResults[0]
         if (validationErrors) {
             def msg = "${colors.red}The following errors have been detected in ${samplesheetFile.toString()}:\n\n" + validationErrors.join('\n').trim() + "\n${colors.reset}\n"
             log.error("Validation of samplesheet failed!")

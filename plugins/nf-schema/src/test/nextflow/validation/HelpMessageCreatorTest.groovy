@@ -148,6 +148,7 @@ copyNoFollow, move) [default: copy]
   --validate_params            [boolean]         Boolean whether to validate parameters against the schema at runtime [default: true] 
   --validationShowHiddenParams [boolean]         Show all params when using `--help` 
   --enable_conda               [boolean]         Run this workflow with Conda. You can also use '-profile conda' instead of providing this parameter. 
+  --testCamelCase              [string]          A camelCase param 
 
 """
         def resultHelp = help.readLines()
@@ -225,6 +226,7 @@ copyNoFollow, move) [default: copy]
   --validate_params            [boolean]         Boolean whether to validate parameters against the schema at runtime [default: true] 
   --validationShowHiddenParams [boolean]         Show all params when using `--help` 
   --enable_conda               [boolean]         Run this workflow with Conda. You can also use '-profile conda' instead of providing this parameter. 
+  --testCamelCase              [string]          A camelCase param 
 
 """
         def resultHelp = help.readLines()
@@ -480,7 +482,7 @@ Reference genome options
   --genome        [string] Name of iGenomes reference. 
   --fasta         [string] Path to FASTA genome file. 
 
- !! Hiding 22 param(s), use the `--showHidden` parameter to show them !!
+ !! Hiding 23 param(s), use the `--showHidden` parameter to show them !!
 ------------------------------------------------------
 
 """
