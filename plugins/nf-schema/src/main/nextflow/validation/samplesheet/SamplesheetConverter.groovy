@@ -32,23 +32,6 @@ class SamplesheetConverter {
     }
 
     private List<Map> rows = []
-    private Map meta = [:]
-
-    private Map getMeta() {
-        this.meta
-    }
-
-    private Map resetMeta() {
-        this.meta = [:]
-    }
-
-    private addMeta(Map newEntries) {
-        this.meta = this.meta + newEntries
-    }
-
-    private Boolean isMeta() {
-        this.meta.size() > 0
-    }
 
     private List unrecognisedHeaders = []
 
@@ -113,17 +96,10 @@ class SamplesheetConverter {
         def List samplesheetList = fileToObject(samplesheetFile, schemaFile) as List
         this.rows = []
 
-        def List channelFormat = samplesheetList.collect { entry ->
-            resetMeta()
-            def Object result = formatEntry(entry, schemaMap["items"] as Map)
-            if(isMeta()) {
-                if(result instanceof List) {
-                    result.add(0,getMeta())
-                } else {
-                    result = [getMeta(), result]
-                }
-            }
-            return result
+        def List channelFormat = samplesheetList.collect {
+            def result = formatEntry(it, schemaMap["items"] as Map)
+
+            return result instanceof List ? result : [result]
         }
 
         logUnrecognisedHeaders(samplesheetFile.toString())
@@ -139,34 +115,41 @@ class SamplesheetConverter {
     private Object formatEntry(Object input, Map schema, String headerPrefix = "") {
 
         // Add default values for missing entries
-        input = input != null ? input : findDeep(schema, "default") != null ? findDeep(schema, "default") : []
+        input = input ?: findDeep(schema, "default") ?: []
 
         if (input instanceof Map) {
-            def List result = []
             def Map properties = findDeep(schema, "properties") as Map
             def Set unusedKeys = input.keySet() - properties.keySet()
-            
+
             // Check for properties in the samplesheet that have not been defined in the schema
             unusedKeys.each{addUnrecognisedHeader("${headerPrefix}${it}" as String)}
 
+            // Local map for metadata
+            def Map meta = [:]
+
             // Loop over every property to maintain the correct order
-            properties.each { property, schemaValues ->
+            def Map result = properties.collectEntries { property, schemaValues ->
                 def value = input[property]
-                def List metaIds = schemaValues["meta"] instanceof List ? schemaValues["meta"] as List : schemaValues["meta"] instanceof String ? [schemaValues["meta"]] : []
                 def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
-                
+
+                def metaIds = schemaValues["meta"]
+                metaIds = metaIds instanceof List ? metaIds : metaIds instanceof String ? [metaIds] : []
+
                 // Add the value to the meta map if needed
                 if (metaIds) {
                     metaIds.each {
                         meta["${it}"] = processMeta(value, schemaValues as Map, prefix)
                     }
-                } 
-                // return the correctly casted value
-                else {
-                    result.add(formatEntry(value, schemaValues as Map, prefix))
+                    return [:]
                 }
+
+                // return the correctly casted value
+                return [(property): formatEntry(value, schemaValues as Map, prefix)]
             }
-            return result
+
+            // If we have metadata, we return a combined result
+            return meta ? [meta] + result.values().toList() : result.values().toList()
+
         } else if (input instanceof List) {
             def List result = []
             def Integer count = 0
@@ -248,7 +231,7 @@ class SamplesheetConverter {
     */
     private Object processMeta(Object input, Map schema, String headerPrefix) {
         // Add default values for missing entries
-        input = input != null ? input : findDeep(schema, "default") != null ? findDeep(schema, "default") : []
+        input = input ?: findDeep(schema, "default") ?: []
 
         if (input instanceof Map) {
             def Map result = [:]
