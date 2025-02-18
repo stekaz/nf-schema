@@ -459,7 +459,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[mapMeta:this is in a map, arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
+        stdout.contains("[[arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[localMeta:this is in a map], [string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
     }
 
     def 'deeply nested samplesheet - JSON' () {
@@ -485,7 +485,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[mapMeta:this is in a map, arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
+        stdout.contains("[[arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[localMeta:this is in a map], [string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
     }
 
     def 'samplesheetToList - String, String' () {
@@ -638,7 +638,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[mapMeta:this is in a map, arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
+        stdout.contains("[[arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[localMeta:this is in a map], [string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
 
     }
 }
