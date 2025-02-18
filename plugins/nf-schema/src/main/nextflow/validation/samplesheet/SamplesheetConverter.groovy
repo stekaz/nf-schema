@@ -31,25 +31,6 @@ class SamplesheetConverter {
         this.config = config
     }
 
-    private List<Map> rows = []
-    private Map meta = [:]
-
-    private Map getMeta() {
-        this.meta
-    }
-
-    private Map resetMeta() {
-        this.meta = [:]
-    }
-
-    private addMeta(Map newEntries) {
-        this.meta = this.meta + newEntries
-    }
-
-    private Boolean isMeta() {
-        this.meta.size() > 0
-    }
-
     private List unrecognisedHeaders = []
 
     private addUnrecognisedHeader (String header) {
@@ -111,18 +92,9 @@ class SamplesheetConverter {
 
         // Convert
         def List samplesheetList = fileToObject(samplesheetFile, schemaFile) as List
-        this.rows = []
 
         def List channelFormat = samplesheetList.collect { entry ->
-            resetMeta()
             def Object result = formatEntry(entry, schemaMap["items"] as Map)
-            if(isMeta()) {
-                if(result instanceof List) {
-                    result.add(0,getMeta())
-                } else {
-                    result = [getMeta(), result]
-                }
-            }
             return result
         }
 
@@ -149,16 +121,21 @@ class SamplesheetConverter {
             // Check for properties in the samplesheet that have not been defined in the schema
             unusedKeys.each{addUnrecognisedHeader("${headerPrefix}${it}" as String)}
 
+            // Store meta fields in a local map so they don't overwrite each other
+            def Map localMeta = [:]
+
             // Loop over every property to maintain the correct order
             properties.each { property, schemaValues ->
                 def value = input[property]
-                def List metaIds = schemaValues["meta"] instanceof List ? schemaValues["meta"] as List : schemaValues["meta"] instanceof String ? [schemaValues["meta"]] : []
                 def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
-                
+
+                def metaIds = schemaValues["meta"]
+                metaIds = metaIds instanceof List ? metaIds : metaIds instanceof String ? [metaIds] : []
+
                 // Add the value to the meta map if needed
                 if (metaIds) {
-                    metaIds.each {
-                        meta["${it}"] = processMeta(value, schemaValues as Map, prefix)
+                    metaIds.each { id ->
+                        localMeta[id] = processMeta(value, schemaValues as Map, prefix)
                     }
                 } 
                 // return the correctly casted value
@@ -166,7 +143,13 @@ class SamplesheetConverter {
                     result.add(formatEntry(value, schemaValues as Map, prefix))
                 }
             }
-            return result
+
+            // If there are any meta fields, return them as the first item
+            if (!localMeta.isEmpty()) {
+                return [ localMeta ] + result
+            } else {
+                return result
+            }
         } else if (input instanceof List) {
             def List result = []
             def Integer count = 0
